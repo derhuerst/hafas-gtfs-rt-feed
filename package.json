@@ -1,0 +1,30 @@
+{
+	"name": "vbb-gtfs-rt-feed",
+	"description": "Generate a GTFS Realtime feed by checking departures.",
+	"version": "0.1.0",
+	"main": "index.js",
+	"files": [
+		"index.js"
+	],
+	"keywords": [
+		"todo"
+	],
+	"author": "Jannis R <mail@jannisr.de>",
+	"homepage": "https://github.com/derhuerst/vbb-gtfs-rt-feed",
+	"repository": "derhuerst/vbb-gtfs-rt-feed",
+	"bugs": "https://github.com/derhuerst/vbb-gtfs-rt-feed/issues",
+	"license": "ISC",
+	"engines": {
+		"node": ">=6"
+	},
+	"dependencies": {
+	},
+	"devDependencies": {
+		"tape": "^4.6.3",
+		"tap-min": "^1.2.1"
+	},
+	"scripts": {
+		"test": "node test.js | tap-min",
+		"prepublishOnly": "npm test"
+	}
+}
