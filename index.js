@@ -16,7 +16,8 @@ const createConvert = () => {
 			},
 			stop_time_update: [{
 				departure: {
-					delay: dep.delay || 0, time: formatDate(dep.when)
+					delay: dep.delay || 0,
+					time: formatDate(dep.when)
 				}
 			}]
 		}, tripUpdate)
