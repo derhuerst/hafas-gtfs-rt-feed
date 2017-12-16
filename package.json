@@ -20,12 +20,14 @@
 	"dependencies": {
 		"gtfs-rt-bindings": "^0.1.0",
 		"pbf": "^3.0.5",
-		"through2": "^2.0.3",
-		"vbb-monitor": "^2.1.0"
+		"through2": "^2.0.3"
 	},
 	"devDependencies": {
+		"bufferutil": "^3.0.3",
 		"tap-min": "^1.2.1",
-		"tape": "^4.6.3"
+		"tape": "^4.6.3",
+		"vbb-monitor": "^2.1.0",
+		"ws": "^3.3.2"
 	},
 	"scripts": {
 		"test": "node test.js | tap-min",
