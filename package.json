@@ -24,6 +24,7 @@
 		"node": ">=8"
 	},
 	"dependencies": {
+		"gtfs-rt-bindings": "^3.0.0"
 	},
 	"devDependencies": {
 	},
