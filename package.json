@@ -1,13 +1,19 @@
 {
 	"name": "vbb-gtfs-rt-feed",
-	"description": "Generate a GTFS Realtime feed by checking departures.",
+	"description": "Generate a GTFS Realtime feed of VBB public transport.",
 	"version": "0.1.0",
 	"main": "index.js",
 	"files": [
 		"index.js"
 	],
 	"keywords": [
-		"todo"
+		"public transport",
+		"transit",
+		"gtfs realtime",
+		"gtfs-rt",
+		"feed",
+		"hafas",
+		"vbb"
 	],
 	"author": "Jannis R <mail@jannisr.de>",
 	"homepage": "https://github.com/derhuerst/vbb-gtfs-rt-feed",
@@ -15,19 +21,11 @@
 	"bugs": "https://github.com/derhuerst/vbb-gtfs-rt-feed/issues",
 	"license": "ISC",
 	"engines": {
-		"node": ">=6"
+		"node": ">=8"
 	},
 	"dependencies": {
-		"gtfs-rt-bindings": "^0.1.0",
-		"pbf": "^3.0.5",
-		"through2": "^2.0.3"
 	},
 	"devDependencies": {
-		"bufferutil": "^3.0.3",
-		"tap-min": "^1.2.1",
-		"tape": "^4.6.3",
-		"vbb-monitor": "^2.1.0",
-		"ws": "^3.3.2"
 	},
 	"scripts": {
 		"test": "node test.js | tap-min",
