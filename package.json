@@ -27,6 +27,8 @@
 		"gtfs-rt-bindings": "^3.0.0"
 	},
 	"devDependencies": {
+		"bvg-hafas": "^2.0.0",
+		"hafas-monitor-trips": "^2.0.2"
 	},
 	"scripts": {
 		"test": "node test.js | tap-min",
