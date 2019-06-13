@@ -2,6 +2,7 @@
 
 const createHafas = require('bvg-hafas')
 const createMonitor = require('hafas-monitor-trips')
+const encodeChunks = require('length-prefixed-stream/encode')
 const createGtfsRtFeed = require('.')
 
 const hafas = createHafas('vbb-gtfs-rt-feed example')
@@ -17,4 +18,4 @@ feed.once('error', (err) => {
 	console.error(err)
 	process.exit(1)
 })
-feed.pipe(process.stdout)
+feed.pipe(encodeChunks()).pipe(process.stdout)

@@ -28,7 +28,8 @@
 	},
 	"devDependencies": {
 		"bvg-hafas": "^2.0.0",
-		"hafas-monitor-trips": "^2.0.2"
+		"hafas-monitor-trips": "^2.0.2",
+		"length-prefixed-stream": "^2.0.0"
 	},
 	"scripts": {
 		"test": "node test.js | tap-min",

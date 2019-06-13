@@ -1,7 +1,6 @@
 'use strict'
 
-// const {DateTime} = require('luxon')
-const {TripUpdate, VehiclePosition} = require('gtfs-rt-bindings')
+const {TripUpdate, VehiclePosition, FeedMessage} = require('gtfs-rt-bindings')
 const {Readable} = require('stream')
 
 const formatWhen = t => Math.round(new Date(t) / 1000)
@@ -9,7 +8,7 @@ const formatWhen = t => Math.round(new Date(t) / 1000)
 const {SCHEDULED, SKIPPED} = TripUpdate.StopTimeUpdate.ScheduleRelationship
 const {STOPPED_AT, IN_TRANSIT_TO} = VehiclePosition.VehicleStopStatus
 
-const encodeStopTimeUpdate = (st) => {
+const formatStopTimeUpdate = (st) => {
 	const arr = st.arrival || st.scheduledArrival
 	const dep = st.departure || st.scheduledDeparture
 	return {
@@ -30,8 +29,8 @@ const encodeStopTimeUpdate = (st) => {
 	}
 }
 
-const encodeTripUpdate = (trip) => {
-	return TripUpdate.encode({
+const formatTripUpdate = (trip) => {
+	return {
 		trip: {
 			// todo: make these match the GTFS feeds
 			trip_id: trip.id || null,
@@ -42,9 +41,9 @@ const encodeTripUpdate = (trip) => {
 			id: trip.line && trip.line.fahrtNr || null,
 			label: trip.line && trip.line.direction || null
 		},
-		stop_time_update: trip.stopovers.map(encodeStopTimeUpdate)
+		stop_time_update: trip.stopovers.map(formatStopTimeUpdate)
 		// todo: timestamp, see https://github.com/public-transport/hafas-client/issues/9#issuecomment-501435639
-	})
+	}
 }
 
 // arrival and departure might be equal, so we add a 10s buffer
@@ -62,7 +61,7 @@ const isReasonableStopover = (st) => {
 	return !st.cancelled && (st.departure || st.arrival)
 }
 
-const encodeVehiclePosition = (movement) => {
+const formatVehiclePosition = (movement) => {
 	const stopovers = (movement.nextStopovers || [])
 		.filter(isReasonableStopover)
 		.map(stopoverWithBuffer)
@@ -78,7 +77,7 @@ const encodeVehiclePosition = (movement) => {
 		return (arr && arr > t) || (dep && dep > t)
 	})
 
-	return VehiclePosition.encode({
+	return {
 		trip: {
 			// todo: make these match the GTFS feeds
 			trip_id: movement.tripId || null,
@@ -99,19 +98,37 @@ const encodeVehiclePosition = (movement) => {
 		current_status: currSt ? STOPPED_AT : IN_TRANSIT_TO
 		// todo: occupancy_status, maybe from https://github.com/public-transport/hafas-client/pull/112
 		// todo: timestamp, see https://github.com/public-transport/hafas-client/issues/9#issuecomment-501435639
+	}
+}
+
+const encodeFeedMessage = (entity) => {
+	return FeedMessage.encode({
+		header: {
+			gtfs_realtime_version: '2.0',
+			timestamp: formatWhen(Date.now())
+		},
+		entity: [entity]
 	})
 }
 
 const createGtfsRtFeed = (monitor) => {
+
 	const out = new Readable({
 		read: () => {},
-		highWaterMark: 1000
+		// AFAICT you can't tell the length of an item in a Protocol Buffer,
+		// so we have to avoid concatenating encoded feed messages.
+		objectMode: true,
+		highWaterMark: 3
 	})
 
 	monitor.on('trip', (trip) => {
 		// todo: validate using ajv
 		try {
-			out.push(encodeTripUpdate(trip))
+			const entity = {
+				id: '1', // todo: does it have to increase?
+				trip_update: formatTripUpdate(trip)
+			}
+			out.push(encodeFeedMessage(entity))
 		} catch(err) {
 			out.emit('error', err)
 		}
@@ -119,32 +136,17 @@ const createGtfsRtFeed = (monitor) => {
 	monitor.on('position', (_, movement) => {
 		// todo: validate using ajv
 		try {
-			out.push(encodeVehiclePosition(movement))
+			const entity = {
+				id: '1', // todo: does it have to increase?
+				vehicle: formatVehiclePosition(movement)
+			}
+			out.push(encodeFeedMessage(entity))
 		} catch(err) {
 			out.emit('error', err)
 		}
 	})
 
 	return out
-
-	// return through.obj((dep, _, cb) => {
-	// 	const tripUpdate = new Pbf()
-	// 	TripUpdate.write({
-	// 		trip: {
-	// 			trip_id: dep.trip + '',
-	// 			route_id: dep.line.id
-	// 		},
-	// 		stop_time_update: [{
-	// 			departure: {
-	// 				delay: dep.delay || 0,
-	// 				time: formatWhen(dep.when)
-	// 			}
-	// 		}]
-	// 	}, tripUpdate)
-
-	// 	const buf = tripUpdate.finish()
-	// 	cb(null, buf)
-	// })
 }
 
 module.exports = createGtfsRtFeed
