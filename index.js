@@ -39,7 +39,7 @@ const formatTripUpdate = (trip) => {
 		},
 		vehicle: {
 			id: trip.line && trip.line.fahrtNr || null,
-			label: trip.line && trip.line.direction || null
+			label: trip.direction || null
 		},
 		stop_time_update: trip.stopovers.map(formatStopTimeUpdate)
 		// todo: timestamp, see https://github.com/public-transport/hafas-client/issues/9#issuecomment-501435639
@@ -86,7 +86,7 @@ const formatVehiclePosition = (movement) => {
 		},
 		vehicle: {
 			id: movement.line && movement.line.fahrtNr || null,
-			label: movement.line && movement.line.direction || null
+			label: movement.direction || null
 		},
 		position: movement.location ? {
 			latitude: movement.location.latitude,
