@@ -6,7 +6,7 @@ const encodeChunks = require('length-prefixed-stream/encode')
 const {inspect} = require('util')
 const createGtfsRtFeed = require('.')
 
-const hafas = createHafas('vbb-gtfs-rt-feed example')
+const hafas = createHafas('hafas-gtfs-rt-feed example')
 const monitor = createMonitor(hafas, {
 	north: 52.52,
 	west: 13.36,

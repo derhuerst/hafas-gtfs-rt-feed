@@ -1,6 +1,6 @@
 {
-	"name": "vbb-gtfs-rt-feed",
-	"description": "Generate a GTFS Realtime feed of VBB public transport.",
+	"name": "hafas-gtfs-rt-feed",
+	"description": "Generate a GTFS Realtime feed by monitoring a HAFAS endpoint.",
 	"version": "0.1.0",
 	"main": "index.js",
 	"files": [
@@ -12,13 +12,12 @@
 		"gtfs realtime",
 		"gtfs-rt",
 		"feed",
-		"hafas",
-		"vbb"
+		"hafas"
 	],
 	"author": "Jannis R <mail@jannisr.de>",
-	"homepage": "https://github.com/derhuerst/vbb-gtfs-rt-feed",
-	"repository": "derhuerst/vbb-gtfs-rt-feed",
-	"bugs": "https://github.com/derhuerst/vbb-gtfs-rt-feed/issues",
+	"homepage": "https://github.com/derhuerst/hafas-gtfs-rt-feed",
+	"repository": "derhuerst/hafas-gtfs-rt-feed",
+	"bugs": "https://github.com/derhuerst/hafas-gtfs-rt-feed/issues",
 	"license": "ISC",
 	"engines": {
 		"node": ">=8"

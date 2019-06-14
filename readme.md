@@ -1,10 +1,10 @@
-# vbb-gtfs-rt-feed
+# hafas-gtfs-rt-feed
 
-**Generate a [GTFS Realtime](https://developers.google.com/transit/gtfs-realtime/) of VBB public transport.** Work in progress.
+**Generate a [GTFS Realtime](https://developers.google.com/transit/gtfs-realtime/) feed by [monitoring](https://github.com/derhuerst/hafas-monitor-trips) a [HAFAS endpoint](https://github.com/public-transport/hafas-client#background).**
 
-[![npm version](https://img.shields.io/npm/v/vbb-gtfs-rt-feed.svg)](https://www.npmjs.com/package/vbb-gtfs-rt-feed)
-[![build status](https://img.shields.io/travis/derhuerst/vbb-gtfs-rt-feed.svg)](https://travis-ci.org/derhuerst/vbb-gtfs-rt-feed)
-![ISC-licensed](https://img.shields.io/github/license/derhuerst/vbb-gtfs-rt-feed.svg)
+[![npm version](https://img.shields.io/npm/v/hafas-gtfs-rt-feed.svg)](https://www.npmjs.com/package/hafas-gtfs-rt-feed)
+[![build status](https://img.shields.io/travis/derhuerst/hafas-gtfs-rt-feed.svg)](https://travis-ci.org/derhuerst/hafas-gtfs-rt-feed)
+![ISC-licensed](https://img.shields.io/github/license/derhuerst/hafas-gtfs-rt-feed.svg)
 [![chat on gitter](https://badges.gitter.im/derhuerst.svg)](https://gitter.im/derhuerst)
 [![support me on Patreon](https://img.shields.io/badge/support%20me-on%20patreon-fa7664.svg)](https://patreon.com/derhuerst)
 
@@ -12,7 +12,7 @@
 ## Installing
 
 ```shell
-npm install vbb-gtfs-rt-feed
+npm install hafas-gtfs-rt-feed
 ```
 
 
@@ -21,10 +21,10 @@ npm install vbb-gtfs-rt-feed
 ```js
 const createHafas = require('bvg-hafas')
 const createMonitor = require('hafas-monitor-trips')
-const createGtfsRtFeed = require('vbb-gtfs-rt-feed')
+const createGtfsRtFeed = require('hafas-gtfs-rt-feed')
 const encodeChunks = require('length-prefixed-stream/encode')
 
-const hafas = createHafas('vbb-gtfs-rt-feed example')
+const hafas = createHafas('hafas-gtfs-rt-feed example')
 const monitor = createMonitor(hafas, {
 	north: 52.52,
 	west: 13.36,
@@ -94,4 +94,4 @@ feed.on('data', (msg) => {
 
 ## Contributing
 
-If you have a question or have difficulties using `vbb-gtfs-rt-feed`, please double-check your code and setup first. If you think you have found a bug or want to propose a feature, refer to [the issues page](https://github.com/derhuerst/vbb-gtfs-rt-feed/issues).
+If you have a question or have difficulties using `hafas-gtfs-rt-feed`, please double-check your code and setup first. If you think you have found a bug or want to propose a feature, refer to [the issues page](https://github.com/derhuerst/hafas-gtfs-rt-feed/issues).
