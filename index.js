@@ -101,17 +101,23 @@ const formatVehiclePosition = (movement) => {
 	}
 }
 
-const encodeFeedMessage = (entity) => {
-	return FeedMessage.encode({
-		header: {
-			gtfs_realtime_version: '2.0',
-			timestamp: formatWhen(Date.now())
-		},
-		entity: [entity]
-	})
+const defaults = {
+	debug: false
 }
 
-const createGtfsRtFeed = (monitor) => {
+const createGtfsRtFeed = (monitor, opt = {}) => {
+	const {debug} = {...defaults, ...opt}
+
+	const encodeFeedMessage = (entity) => {
+		const msg = {
+			header: {
+				gtfs_realtime_version: '2.0',
+				timestamp: formatWhen(Date.now())
+			},
+			entity: [entity]
+		}
+		return debug ? msg : FeedMessage.encode(msg)
+	}
 
 	const out = new Readable({
 		read: () => {},
