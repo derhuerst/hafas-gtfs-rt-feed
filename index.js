@@ -102,11 +102,15 @@ const formatVehiclePosition = (movement) => {
 }
 
 const defaults = {
-	debug: false
+	debug: false,
+	consumeTrips: true, // consume & convert `trip` events?
+	consumePositions: true // consume & convert `position` events?
 }
 
 const createGtfsRtFeed = (monitor, opt = {}) => {
-	const {debug} = {...defaults, ...opt}
+	const {
+		debug, consumeTrips, consumePositions
+	} = {...defaults, ...opt}
 
 	const encodeFeedMessage = (entity) => {
 		const msg = {
@@ -127,7 +131,7 @@ const createGtfsRtFeed = (monitor, opt = {}) => {
 		highWaterMark: 3
 	})
 
-	monitor.on('trip', (trip) => {
+	const onTrip = (trip) => {
 		// todo: validate using ajv
 		try {
 			const entity = {
@@ -138,8 +142,10 @@ const createGtfsRtFeed = (monitor, opt = {}) => {
 		} catch(err) {
 			out.emit('error', err)
 		}
-	})
-	monitor.on('position', (_, movement) => {
+	}
+	if (consumeTrips) monitor.on('trip', onTrip)
+
+	const onPosition = (_, movement) => {
 		// todo: validate using ajv
 		try {
 			const entity = {
@@ -150,7 +156,8 @@ const createGtfsRtFeed = (monitor, opt = {}) => {
 		} catch(err) {
 			out.emit('error', err)
 		}
-	})
+	}
+	if (consumePositions) monitor.on('position', onPosition)
 
 	return out
 }
