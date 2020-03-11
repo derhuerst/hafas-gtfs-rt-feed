@@ -9,8 +9,8 @@ const {SCHEDULED, SKIPPED} = TripUpdate.StopTimeUpdate.ScheduleRelationship
 const {STOPPED_AT, IN_TRANSIT_TO} = VehiclePosition.VehicleStopStatus
 
 const formatStopTimeUpdate = (st) => {
-	const arr = st.arrival || st.scheduledArrival
-	const dep = st.departure || st.scheduledDeparture
+	const arr = st.arrival || st.prognosedArrival || st.plannedArrival
+	const dep = st.departure || st.prognosedDeparture || st.plannedDeparture
 	return {
 		// todo: does it have to match GTFS?
 		stop_id: st.stop && st.stop.id || null,

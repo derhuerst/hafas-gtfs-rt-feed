@@ -21,15 +21,18 @@
 	"bugs": "https://github.com/derhuerst/hafas-gtfs-rt-feed/issues",
 	"license": "ISC",
 	"engines": {
-		"node": ">=8"
+		"node": ">=10"
 	},
 	"dependencies": {
 		"gtfs-rt-bindings": "^3.0.0"
 	},
 	"devDependencies": {
-		"bvg-hafas": "^2.0.0",
-		"hafas-monitor-trips": "^2.0.2",
+		"bvg-hafas": "^3.0.0",
+		"hafas-monitor-trips": "^3.0.0",
 		"length-prefixed-stream": "^2.0.0"
+	},
+	"peerDependencies": {
+		"hafas-client": "^5"
 	},
 	"scripts": {
 		"test": "node test.js | tap-min",
