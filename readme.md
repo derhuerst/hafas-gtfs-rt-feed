@@ -85,6 +85,32 @@ feed.on('data', (msg) => {
 }
 ```
 
+### as a dump
+
+`createGtfsRtFeed` just returns a raw feed of data, as extracted from the HAFAS endpoint using [`hafas-monitor-trips`](https://github.com/derhuerst/hafas-monitor-trips). It is similar (but not the same) to the [`incrementality: DIFFERENTIAL`](https://developers.google.com/transit/gtfs-realtime/reference#enum-incrementality) mode ([which is just a draft spec right now](https://github.com/google/transit/issues/84)).
+
+To get a full dump, with the [`incrementality: FULL_DATASET`](https://developers.google.com/transit/gtfs-realtime/reference#enum-incrementality) semantics, use the `as-dump` entrypoint:
+
+```js
+const gtfsRtAsDump = require('hafas-gtfs-rt-feed/as-dump')
+
+const feed = createGtfsRtFeed(monitor, {encodePbf: false})
+feed.on('error', console.error)
+const asDump = gtfsRtAsDump()
+asDump.on('error', console.error)
+
+feed.pipe(asDump)
+setInterval(() => {
+	// Use getDump() in your app to distribute the dump e.g. via HTTP.
+	console.log(asDump.getDump())
+}, 5000)
+```
+
+
+## Related
+
+- [`transloc-to-gtfs-real-time`](https://github.com/jonathonwpowell/transloc-to-gtfs-real-time) – Transform Transloc Real Time API to the GTFS RealTime Format
+
 
 ## Contributing
 

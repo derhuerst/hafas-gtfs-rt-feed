@@ -5,6 +5,12 @@ const createMonitor = require('hafas-monitor-trips')
 const encodeChunks = require('length-prefixed-stream/encode')
 const {inspect} = require('util')
 const createGtfsRtFeed = require('.')
+const gtfsRtAsDump = require('./as-dump')
+
+const showError = (err) => {
+	console.error(err)
+	process.exit(1)
+}
 
 const potsdamerPlatz = {
 	north: 52.52,
@@ -24,14 +30,23 @@ const monitor = createMonitor(hafas, centerOfBerlin, 20 * 1000)
 // 	console.error(stats)
 // })
 
+// unencoded "differential feed"
 const feed = createGtfsRtFeed(monitor, {encodePbf: false})
+feed.once('error', showError)
 feed.on('data', (feedEntity) => {
 	console.log(inspect(feedEntity, {depth: null, colors: true}))
 })
+
+// PBF-encoded "differential feed"
 // const feed = createGtfsRtFeed(monitor)
+// feed.once('error', showError)
 // feed.pipe(encodeChunks()).pipe(process.stdout)
 
-feed.once('error', (err) => {
-	console.error(err)
-	process.exit(1)
-})
+// PBF-encoded "full dump"
+// const asDump = gtfsRtAsDump()
+// asDump.once('error', showError)
+
+// feed.pipe(asDump)
+// setInterval(() => {
+// 	console.log(asDump.getDump())
+// }, 5000)

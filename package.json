@@ -5,7 +5,9 @@
 	"main": "index.js",
 	"files": [
 		"index.js",
-		"writer.js"
+		"writer.js",
+		"as-dump.js",
+		"lib"
 	],
 	"keywords": [
 		"public transport",
@@ -24,6 +26,7 @@
 		"node": ">=10"
 	},
 	"dependencies": {
+		"debug": "^4.1.1",
 		"gtfs-rt-bindings": "^3.0.0"
 	},
 	"devDependencies": {
