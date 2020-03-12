@@ -101,7 +101,14 @@ const formatVehiclePosition = (movement) => {
 	}
 }
 
-const createGtfsRtWriter = (debug = false) => {
+const createGtfsRtWriter = (opt = {}) => {
+	const {
+		encodePbf,
+	} = {
+		encodePbf: true,
+		...opt
+	}
+
 	const encodeFeedMessage = (entity) => {
 		const msg = {
 			header: {
@@ -110,7 +117,7 @@ const createGtfsRtWriter = (debug = false) => {
 			},
 			entity: [entity]
 		}
-		return debug ? msg : FeedMessage.encode(msg)
+		return encodePbf ? FeedMessage.encode(msg) : msg
 	}
 
 	const out = new Readable({

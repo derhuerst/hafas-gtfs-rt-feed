@@ -38,10 +38,10 @@ feed.pipe(encodeChunks()).pipe(process.stdout)
 
 `feed` is a [readable stream](https://nodejs.org/api/stream.html#stream_class_stream_readable) in [object mode](https://nodejs.org/api/stream.html#stream_object_mode) that emits [GTFS Realtime](https://developers.google.com/transit/gtfs-realtime/reference/) `FeedMessage` entities, containing [`TripUpdate`](https://developers.google.com/transit/gtfs-realtime/reference/#message-tripupdate) and [`VehiclePosition`](https://developers.google.com/transit/gtfs-realtime/reference/#message-vehicleposition) items.
 
-If you pass `debug: true`, the items won't be encoded as [Protocol Buffers](https://developers.google.com/protocol-buffers/), but kept as raw JavaScript objects:
+If you pass `encodePbf: false`, the items won't be encoded as [Protocol Buffers](https://developers.google.com/protocol-buffers/), but kept as raw JavaScript objects:
 
 ```js
-const feed = createGtfsRtFeed(monitor, {debug: true})
+const feed = createGtfsRtFeed(monitor, {encodePbf: false})
 feed.on('data', (msg) => {
 	console.log(msg)
 })

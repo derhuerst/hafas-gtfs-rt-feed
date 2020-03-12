@@ -24,7 +24,7 @@ const monitor = createMonitor(hafas, centerOfBerlin, 20 * 1000)
 // 	console.error(stats)
 // })
 
-const feed = createGtfsRtFeed(monitor, {debug: true})
+const feed = createGtfsRtFeed(monitor, {encodePbf: false})
 feed.on('data', (msg) => {
 	console.log(inspect(msg, {depth: null, colors: true}))
 })
