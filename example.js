@@ -25,8 +25,8 @@ const monitor = createMonitor(hafas, centerOfBerlin, 20 * 1000)
 // })
 
 const feed = createGtfsRtFeed(monitor, {encodePbf: false})
-feed.on('data', (msg) => {
-	console.log(inspect(msg, {depth: null, colors: true}))
+feed.on('data', (feedEntity) => {
+	console.log(inspect(feedEntity, {depth: null, colors: true}))
 })
 // const feed = createGtfsRtFeed(monitor)
 // feed.pipe(encodeChunks()).pipe(process.stdout)

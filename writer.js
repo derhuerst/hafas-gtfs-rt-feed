@@ -1,6 +1,6 @@
 'use strict'
 
-const {TripUpdate, VehiclePosition, FeedMessage} = require('gtfs-rt-bindings')
+const {TripUpdate, VehiclePosition, FeedEntity} = require('gtfs-rt-bindings')
 const {Readable} = require('stream')
 
 const formatWhen = t => Math.round(new Date(t) / 1000)
@@ -109,15 +109,10 @@ const createGtfsRtWriter = (opt = {}) => {
 		...opt
 	}
 
-	const encodeFeedMessage = (entity) => {
-		const msg = {
-			header: {
-				gtfs_realtime_version: '2.0',
-				timestamp: formatWhen(Date.now())
-			},
-			entity: [entity]
-		}
-		return encodePbf ? FeedMessage.encode(msg) : msg
+	let id = 0
+	const writeFeedEntity = (entity) => {
+		entity.id = (++id) + ''
+		out.push(encodePbf ? FeedEntity.encode(entity) : entity)
 	}
 
 	const out = new Readable({
@@ -131,11 +126,9 @@ const createGtfsRtWriter = (opt = {}) => {
 	const writeTrip = (trip) => {
 		// todo: validate using ajv
 		try {
-			const entity = {
-				id: '1', // todo: does it have to increase?
+			writeFeedEntity({
 				trip_update: formatTripUpdate(trip)
-			}
-			out.push(encodeFeedMessage(entity))
+			})
 		} catch(err) {
 			out.emit('error', err)
 		}
@@ -144,11 +137,9 @@ const createGtfsRtWriter = (opt = {}) => {
 	const writePosition = (_, movement) => {
 		// todo: validate using ajv
 		try {
-			const entity = {
-				id: '1', // todo: does it have to increase?
+			writeFeedEntity({
 				vehicle: formatVehiclePosition(movement)
-			}
-			out.push(encodeFeedMessage(entity))
+			})
 		} catch(err) {
 			out.emit('error', err)
 		}
@@ -157,4 +148,5 @@ const createGtfsRtWriter = (opt = {}) => {
 	return {out, writeTrip, writePosition}
 }
 
+createGtfsRtWriter.gtfs_realtime_version = '2.0'
 module.exports = createGtfsRtWriter

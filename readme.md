@@ -36,7 +36,7 @@ const feed = createGtfsRtFeed(monitor)
 feed.pipe(encodeChunks()).pipe(process.stdout)
 ```
 
-`feed` is a [readable stream](https://nodejs.org/api/stream.html#stream_class_stream_readable) in [object mode](https://nodejs.org/api/stream.html#stream_object_mode) that emits [GTFS Realtime](https://developers.google.com/transit/gtfs-realtime/reference/) `FeedMessage` entities, containing [`TripUpdate`](https://developers.google.com/transit/gtfs-realtime/reference/#message-tripupdate) and [`VehiclePosition`](https://developers.google.com/transit/gtfs-realtime/reference/#message-vehicleposition) items.
+`feed` is a [readable stream](https://nodejs.org/api/stream.html#stream_class_stream_readable) in [object mode](https://nodejs.org/api/stream.html#stream_object_mode) that emits [GTFS Realtime](https://developers.google.com/transit/gtfs-realtime/reference/) `FeedEntity` chunks. Each `FeedEntity` contains either a [`TripUpdate`](https://developers.google.com/transit/gtfs-realtime/reference/#message-tripupdate) or a [`VehiclePosition`](https://developers.google.com/transit/gtfs-realtime/reference/#message-vehicleposition).
 
 If you pass `encodePbf: false`, the items won't be encoded as [Protocol Buffers](https://developers.google.com/protocol-buffers/), but kept as raw JavaScript objects:
 
@@ -49,45 +49,39 @@ feed.on('data', (msg) => {
 
 ```js
 {
-	header: {gtfs_realtime_version: '2.0', timestamp: 1560505296},
-	entity: [{
-		id: '1',
-		vehicle: {
-			trip: {trip_id: '1|65978|0|86|14062019', route_id: '250'},
-			vehicle: {id: null, label: 'U Franz-Neumann-Platz'},
-			position: {latitude: 52.57779, longitude: 13.398431},
-			stop_id: '900000131528',
-			current_status: 2 // IN_TRANSIT_TO
-		}
-	}]
+	id: '1',
+	vehicle: {
+		trip: {trip_id: '1|65978|0|86|14062019', route_id: '250'},
+		vehicle: {id: null, label: 'U Franz-Neumann-Platz'},
+		position: {latitude: 52.57779, longitude: 13.398431},
+		stop_id: '900000131528',
+		current_status: 2 // IN_TRANSIT_TO
+	}
 }
 {
-	header: {gtfs_realtime_version: '2.0', timestamp: 1560505423},
-	entity: [{
-		id: '1',
-		trip_update: {
-			trip: {trip_id: '1|33718|9|86|14062019', route_id: 's1'},
-			vehicle: {id: '11451', label: 'S Wannsee'},
-			stop_time_update: [{
-				stop_id: '900000053301',
-				arrival: {time: null, delay: null},
-				departure: {time: 1560502440, delay: 0},
-				schedule_relationship: 0 // SCHEDULED
-			}, {
-				stop_id: '900000052201',
-				arrival: {time: 1560502560, delay: 0},
-				departure: {time: 1560502560, delay: 0},
-				schedule_relationship: 0 // SCHEDULED
-			},
-			// …
-			{
-				stop_id: '900000200005',
-				arrival: {time: 1560507360, delay: 60},
-				departure: {time: null, delay: null},
-				schedule_relationship: 0 // SCHEDULED
-			}]
-		}
-	}]
+	id: '2',
+	trip_update: {
+		trip: {trip_id: '1|33718|9|86|14062019', route_id: 's1'},
+		vehicle: {id: '11451', label: 'S Wannsee'},
+		stop_time_update: [{
+			stop_id: '900000053301',
+			arrival: {time: null, delay: null},
+			departure: {time: 1560502440, delay: 0},
+			schedule_relationship: 0 // SCHEDULED
+		}, {
+			stop_id: '900000052201',
+			arrival: {time: 1560502560, delay: 0},
+			departure: {time: 1560502560, delay: 0},
+			schedule_relationship: 0 // SCHEDULED
+		},
+		// …
+		{
+			stop_id: '900000200005',
+			arrival: {time: 1560507360, delay: 60},
+			departure: {time: null, delay: null},
+			schedule_relationship: 0 // SCHEDULED
+		}]
+	}
 }
 ```
 
