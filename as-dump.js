@@ -1,9 +1,8 @@
 'use strict'
 
 const {Writable} = require('stream')
-const {FeedEntity} = require('gtfs-rt-bindings')
 const debug = require('debug')('hafas-gtfs-rt-feed:as-dump')
-const createBufferStore = require('./lib/buffer-store')
+const createEntitiesStore = require('./lib/entities-store')
 
 const tripSignature = (u) => {
 	if (u.trip.trip_id) return u.trip.trip_id
@@ -30,7 +29,7 @@ const gtfsRtAsDump = (opt = {}) => {
 		...opt
 	}
 
-	const bufStore = createBufferStore(ttl)
+	const entitiesStore = createEntitiesStore({ttl})
 
 	const write = (entity) => {
 		// If the entity is not being deleted, exactly one of 'trip_update', 'vehicle' and 'alert' fields should be populated.
@@ -44,7 +43,7 @@ const gtfsRtAsDump = (opt = {}) => {
 		// todo: alert
 
 		if (sig !== null) {
-			bufStore.put(sig, FeedEntity.encode(entity))
+			entitiesStore.put(sig, entity)
 			return;
 		}
 		const err = new Error('invalid/unsupported kind of FeedEntity')
@@ -65,10 +64,8 @@ const gtfsRtAsDump = (opt = {}) => {
 	})
 
 	out.getDump = () => {
-		const nrOfItems = Array.from(bufStore.keys()).length
-		debug('nr of stored entities:', nrOfItems)
-		// todo: wrap with `FeedMessage`
-		return bufStore.asBuffer()
+		debug('nr of stored entities:', entitiesStore.nrOfEntities())
+		return entitiesStore.asFeedMessage()
 	}
 
 	return out
