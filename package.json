@@ -1,13 +1,12 @@
 {
 	"name": "hafas-gtfs-rt-feed",
 	"description": "Generate a GTFS Realtime feed by monitoring a HAFAS endpoint.",
-	"version": "0.2.0",
+	"version": "1.0.0",
 	"main": "index.js",
 	"files": [
 		"index.js",
 		"writer.js",
-		"as-dump.js",
-		"lib"
+		"as-dump.js"
 	],
 	"keywords": [
 		"public transport",
@@ -28,7 +27,7 @@
 	"dependencies": {
 		"debug": "^4.1.1",
 		"gtfs-rt-bindings": "^3.1.0",
-		"protocol-buffers-encodings": "^1.1.0"
+		"gtfs-rt-differential-to-full-dataset": "^1.0.0"
 	},
 	"devDependencies": {
 		"bvg-hafas": "^3.0.0",

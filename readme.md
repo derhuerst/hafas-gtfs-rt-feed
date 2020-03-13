@@ -96,13 +96,13 @@ const gtfsRtAsDump = require('hafas-gtfs-rt-feed/as-dump')
 
 const feed = createGtfsRtFeed(monitor, {encodePbf: false})
 feed.on('error', console.error)
-const asDump = gtfsRtAsDump()
-asDump.on('error', console.error)
+const dump = gtfsRtAsDump()
+dump.on('error', console.error)
 
-feed.pipe(asDump)
+feed.pipe(dump)
 setInterval(() => {
-	// Use getDump() in your app to distribute the dump e.g. via HTTP.
-	console.log(asDump.getDump())
+	// Use asFeedMessage() in your app to distribute the dump e.g. via HTTP.
+	console.log(dump.asFeedMessage())
 }, 5000)
 ```
 

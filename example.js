@@ -43,10 +43,10 @@ feed.on('data', (feedEntity) => {
 // feed.pipe(encodeChunks()).pipe(process.stdout)
 
 // PBF-encoded "full dump"
-// const asDump = gtfsRtAsDump()
-// asDump.once('error', showError)
+// const dump = gtfsRtAsDump()
+// dump.once('error', showError)
 
-// feed.pipe(asDump)
+// feed.pipe(dump)
 // setInterval(() => {
-// 	console.log(asDump.getDump())
+// 	console.log(dump.asFeedMessage())
 // }, 5000)
