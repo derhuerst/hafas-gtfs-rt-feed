@@ -1,7 +1,7 @@
 {
 	"name": "hafas-gtfs-rt-feed",
 	"description": "Generate a GTFS Realtime feed by monitoring a HAFAS endpoint.",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"main": "index.js",
 	"files": [
 		"index.js",
@@ -14,7 +14,8 @@
 		"gtfs realtime",
 		"gtfs-rt",
 		"feed",
-		"hafas"
+		"hafas",
+		"hafas-client"
 	],
 	"author": "Jannis R <mail@jannisr.de>",
 	"homepage": "https://github.com/derhuerst/hafas-gtfs-rt-feed",

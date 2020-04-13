@@ -22,7 +22,6 @@ npm install hafas-gtfs-rt-feed
 const createHafas = require('bvg-hafas')
 const createMonitor = require('hafas-monitor-trips')
 const createGtfsRtFeed = require('hafas-gtfs-rt-feed')
-const encodeChunks = require('length-prefixed-stream/encode')
 
 const hafas = createHafas('hafas-gtfs-rt-feed example')
 const monitor = createMonitor(hafas, {
@@ -33,10 +32,10 @@ const monitor = createMonitor(hafas, {
 })
 
 const feed = createGtfsRtFeed(monitor)
-feed.pipe(encodeChunks()).pipe(process.stdout)
+feed.pipe(process.stdout)
 ```
 
-`feed` is a [readable stream](https://nodejs.org/api/stream.html#stream_class_stream_readable) in [object mode](https://nodejs.org/api/stream.html#stream_object_mode) that emits [GTFS Realtime](https://developers.google.com/transit/gtfs-realtime/reference/) `FeedEntity` chunks. Each `FeedEntity` contains either a [`TripUpdate`](https://developers.google.com/transit/gtfs-realtime/reference/#message-tripupdate) or a [`VehiclePosition`](https://developers.google.com/transit/gtfs-realtime/reference/#message-vehicleposition).
+`feed` is a [readable stream](https://nodejs.org/api/stream.html#stream_class_stream_readable) in [object mode](https://nodejs.org/api/stream.html#stream_object_mode) that emits ([pbf](https://developers.google.com/protocol-buffers/)-encoded) [GTFS Realtime](https://developers.google.com/transit/gtfs-realtime/reference/) `FeedEntity` chunks. Each `FeedEntity` contains either a [`TripUpdate`](https://developers.google.com/transit/gtfs-realtime/reference/#message-tripupdate) or a [`VehiclePosition`](https://developers.google.com/transit/gtfs-realtime/reference/#message-vehicleposition).
 
 If you pass `encodePbf: false`, the items won't be encoded as [Protocol Buffers](https://developers.google.com/protocol-buffers/), but kept as raw JavaScript objects:
 
@@ -87,9 +86,9 @@ feed.on('data', (msg) => {
 
 ### as a dump
 
-`createGtfsRtFeed` just returns a raw feed of data, as extracted from the HAFAS endpoint using [`hafas-monitor-trips`](https://github.com/derhuerst/hafas-monitor-trips). It is similar (but not the same) to the [`incrementality: DIFFERENTIAL`](https://developers.google.com/transit/gtfs-realtime/reference#enum-incrementality) mode ([which is just a draft spec right now](https://github.com/google/transit/issues/84)).
+`createGtfsRtFeed` just returns a raw feed of data, as extracted from the HAFAS endpoint using [`hafas-monitor-trips`](https://github.com/derhuerst/hafas-monitor-trips). It is similar (but not the same) to the [`incrementality: DIFFERENTIAL`](https://developers.google.com/transit/gtfs-realtime/reference#enum-incrementality) mode ([which is just a draft spec right now](https://github.com/google/transit/issues/84)): Each item in the feed describes the current state of *one* trip/vehicle.
 
-To get a full dump, with the [`incrementality: FULL_DATASET`](https://developers.google.com/transit/gtfs-realtime/reference#enum-incrementality) semantics, use the `as-dump` entrypoint:
+To get a full dump, with the [`incrementality: FULL_DATASET`](https://developers.google.com/transit/gtfs-realtime/reference#enum-incrementality) semantics (containing *all* trips/vehicles), use the `as-dump` converter:
 
 ```js
 const gtfsRtAsDump = require('hafas-gtfs-rt-feed/as-dump')
@@ -105,6 +104,8 @@ setInterval(() => {
 	console.log(dump.asFeedMessage())
 }, 5000)
 ```
+
+*pro tip:* To distribute this GTFS-RT dataset via HTTP, use [`serve-buffer`](https://github.com/derhuerst/serve-buffer).
 
 
 ## Related
