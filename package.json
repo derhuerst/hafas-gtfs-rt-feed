@@ -6,7 +6,10 @@
 	"files": [
 		"index.js",
 		"writer.js",
-		"as-dump.js"
+		"as-dump.js",
+		"LICENSE",
+		"LICENSE-PROSPERITY.md",
+		"LICENSE-APACHE"
 	],
 	"keywords": [
 		"public transport",
@@ -21,7 +24,21 @@
 	"homepage": "https://github.com/derhuerst/hafas-gtfs-rt-feed",
 	"repository": "derhuerst/hafas-gtfs-rt-feed",
 	"bugs": "https://github.com/derhuerst/hafas-gtfs-rt-feed/issues",
-	"license": "ISC",
+	"license": "(Apache-2.0 AND Prosperity-3.0.0)",
+	"funding": [
+		{
+			"type": "License Zero",
+			"url": "https://licensezero.com/offers/20e3ea67-5f73-4aa8-943d-079aefdc109b"
+		},
+		{
+			"type": "github",
+			"url": "https://github.com/sponsors/derhuerst"
+		},
+		{
+			"type": "patreon",
+			"url": "https://patreon.com/derhuerst"
+		}
+	],
 	"engines": {
 		"node": ">=10"
 	},
