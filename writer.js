@@ -9,11 +9,11 @@ const {SCHEDULED, SKIPPED} = TripUpdate.StopTimeUpdate.ScheduleRelationship
 const {STOPPED_AT, IN_TRANSIT_TO} = VehiclePosition.VehicleStopStatus
 
 const formatStopTimeUpdate = (st) => {
+	const s = st.stop
 	const arr = st.arrival || st.prognosedArrival || st.plannedArrival
 	const dep = st.departure || st.prognosedDeparture || st.plannedDeparture
 	return {
-		// todo: does it have to match GTFS?
-		stop_id: st.stop && st.stop.id || null,
+		stop_id: s && s.ids && s.ids.gtfs || s.id || null,
 		// todo: stop_sequence, matching GTFS?
 		arrival: {
 			time: arr ? formatWhen(arr) : null,
@@ -30,15 +30,17 @@ const formatStopTimeUpdate = (st) => {
 }
 
 const formatTripUpdate = (trip) => {
+	const l = trip.line
 	return {
 		trip: {
-			// todo: make these match the GTFS feeds
-			trip_id: trip.id || null,
-			route_id: trip.line && trip.line.id || null
+			trip_id: trip.ids && trip.ids.gtfs || trip.id || null,
+			route_id: trip.routeId || l && l.ids && l.ids.gtfs || l.id || null
 			// todo: direction_id, matching GTFS?
 		},
 		vehicle: {
-			id: trip.line && trip.line.fahrtNr || null,
+			// todo: HAFAS fahrtNrs are not unique apparently
+			// see public-transport/hafas-client#194
+			id: l && l.fahrtNr || null,
 			label: trip.direction || null
 		},
 		stop_time_update: trip.stopovers.map(formatStopTimeUpdate)
@@ -62,6 +64,7 @@ const isReasonableStopover = (st) => {
 }
 
 const formatVehiclePosition = (movement) => {
+	const l = movement.line
 	const stopovers = (movement.nextStopovers || [])
 		.filter(isReasonableStopover)
 		.map(stopoverWithBuffer)
@@ -79,13 +82,12 @@ const formatVehiclePosition = (movement) => {
 
 	return {
 		trip: {
-			// todo: make these match the GTFS feeds
-			trip_id: movement.tripId || null,
-			route_id: movement.line && movement.line.id || null
+			trip_id: movement.tripIds && movement.tripIds.gtfs || movement.tripId || null,
+			route_id: movement.routeId || l && l.ids && l.ids.gtfs || l.id || null,
 			// todo: direction_id, matching GTFS?
 		},
 		vehicle: {
-			id: movement.line && movement.line.fahrtNr || null,
+			id: l && l.fahrtNr || null,
 			label: movement.direction || null
 		},
 		position: movement.location ? {
