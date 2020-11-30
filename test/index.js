@@ -1,6 +1,6 @@
 'use strict'
 
 const test = require('tape')
-const todo = require('.')
+const todo = require('..')
 
 // todo

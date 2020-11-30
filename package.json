@@ -7,6 +7,7 @@
 		"index.js",
 		"writer.js",
 		"as-dump.js",
+		"lib",
 		"LICENSE",
 		"LICENSE-PROSPERITY.md",
 		"LICENSE-APACHE"
@@ -56,7 +57,7 @@
 		"hafas-client": "^5"
 	},
 	"scripts": {
-		"test": "node test.js | tap-min",
+		"test": "node test/index.js | tap-min",
 		"prepublishOnly": "npm test"
 	}
 }
