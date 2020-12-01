@@ -1,7 +1,9 @@
 'use strict'
 
 const test = require('tape')
+const {VehiclePosition} = require('gtfs-rt-bindings')
 const {
+	formatStopTimeUpdate,
 	formatTripUpdate,
 	formatVehiclePosition,
 } = require('../lib/format')
@@ -9,6 +11,19 @@ const {
 const hvvRe70Trip = require('./fixtures/trip-re70-2020-11-29.json')
 const hvvU1Trip = require('./fixtures/trip-u1-2020-11-29.json')
 const hvvU3Movement = require('./fixtures/movement-u3-2020-12-01.json')
+
+const {STOPPED_AT, IN_TRANSIT_TO} = VehiclePosition.VehicleStopStatus
+
+test('formatStopTimeUpdate prefers a `gtfs` id', (t) => {
+	const gtfsRt = formatStopTimeUpdate({
+		stop: {
+			id: 'bar',
+			ids: {gtfs: 'foo'},
+		},
+	})
+	t.equal(gtfsRt.stop_id, 'foo')
+	t.end()
+})
 
 test('formatTripUpdate works with HVV RE70', (t) => {
 	const gtfsRt = formatTripUpdate(hvvRe70Trip)
@@ -254,5 +269,43 @@ test('formatVehiclePosition works with HVV U3', (t) => {
 		stop_id: null,
 		current_status: null,
 	})
+	t.end()
+})
+
+test('formatVehiclePosition computes stop_id & current_status correctly', (t) => {
+	const wandsbekGartenstadt = '16375'
+	const uhlandstr = '16265'
+	const lübeckerStr = '16269'
+	const barmbek = '16395'
+	const withNow = now => formatVehiclePosition(hvvU3Movement, {now})
+
+	const beforeWandsbekDep = withNow(Date.parse('2020-12-01T13:03:00+01:00'))
+	t.equal(beforeWandsbekDep.stop_id, wandsbekGartenstadt, 'beforeWandsbekDep.stop_id')
+	t.equal(beforeWandsbekDep.current_status, STOPPED_AT, 'beforeWandsbekDep.current_status')
+	const atWandsbekDep = withNow(Date.parse('2020-12-01T13:06:00+01:00'))
+	t.equal(atWandsbekDep.stop_id, wandsbekGartenstadt, 'atWandsbekDep.stop_id')
+	t.equal(atWandsbekDep.current_status, STOPPED_AT, 'atWandsbekDep.current_status')
+
+	const afterWandsbekDep = withNow(Date.parse('2020-12-01T13:06:01+01:00'))
+	t.equal(afterWandsbekDep.stop_id, uhlandstr, 'afterWandsbekDep.stop_id')
+	t.equal(afterWandsbekDep.current_status, IN_TRANSIT_TO, 'afterWandsbekDep.current_status')
+	const beforeUhlandstrArr = withNow(Date.parse('2020-12-01T13:16:01+01:00'))
+	t.equal(beforeUhlandstrArr.stop_id, uhlandstr, 'beforeUhlandstrArr.stop_id')
+	t.equal(beforeUhlandstrArr.current_status, IN_TRANSIT_TO, 'beforeUhlandstrArr.current_status')
+	const atUhlandstrArr = withNow(Date.parse('2020-12-01T13:17:00+01:00'))
+	t.equal(atUhlandstrArr.stop_id, uhlandstr, 'atUhlandstrArr.stop_id')
+	t.equal(atUhlandstrArr.current_status, STOPPED_AT, 'atUhlandstrArr.current_status')
+	const atUhlandstrDep = withNow(Date.parse('2020-12-01T13:18:00+01:00'))
+	t.equal(atUhlandstrDep.stop_id, uhlandstr, 'atUhlandstrDep.stop_id')
+	t.equal(atUhlandstrDep.current_status, STOPPED_AT, 'atUhlandstrDep.current_status')
+
+	const afterUhlandstrDep = withNow(Date.parse('2020-12-01T13:18:01+01:00'))
+	t.equal(afterUhlandstrDep.stop_id, lübeckerStr, 'afterUhlandstrDep.stop_id')
+	t.equal(afterUhlandstrDep.current_status, IN_TRANSIT_TO, 'afterUhlandstrDep.current_status')
+
+	const afterBarmbek = withNow(Date.parse('2020-12-01T13:51:00+01:00'))
+	t.equal(afterBarmbek.stop_id, null, 'afterBarmbek.stop_id')
+	t.equal(afterBarmbek.current_status, null, 'afterBarmbek.current_status')
+
 	t.end()
 })
