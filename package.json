@@ -52,7 +52,9 @@
 		"bvg-hafas": "^3.0.0",
 		"eslint": "^7.14.0",
 		"hafas-monitor-trips": "^3.0.0",
-		"length-prefixed-stream": "^2.0.0"
+		"length-prefixed-stream": "^2.0.0",
+		"tap-min": "^2.0.0",
+		"tape": "^5.0.1"
 	},
 	"peerDependencies": {
 		"hafas-client": "^5"

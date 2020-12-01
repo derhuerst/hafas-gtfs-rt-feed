@@ -1,0 +1,402 @@
+{
+	"id": "1|33779|0|80|29112020",
+	"direction": "Kiel Hbf",
+	"line": {
+		"type": "line",
+		"id": "z-re70",
+		"fahrtNr": "41395",
+		"name": "RE70",
+		"public": true,
+		"adminCode": "Z_____",
+		"mode": "train",
+		"product": "regional-express-train",
+		"operator": {
+			"type": "operator",
+			"id": "zug",
+			"name": "Zug"
+		}
+	},
+	"origin": {
+		"type": "stop",
+		"id": "21132",
+		"name": "Hamburg Hbf",
+		"location": {
+			"type": "location",
+			"id": "21132",
+			"latitude": 53.552751,
+			"longitude": 10.007942
+		},
+		"products": {
+			"subway": false,
+			"suburban": true,
+			"akn": true,
+			"regional-express-train": true,
+			"regional-train": true,
+			"ferry": false,
+			"bus": false,
+			"express-bus": false,
+			"anruf-sammel-taxi": false,
+			"long-distance-train": true,
+			"long-distance-bus": false
+		}
+	},
+	"destination": {
+		"type": "stop",
+		"id": "51570",
+		"name": "Kiel Hbf",
+		"location": {
+			"type": "location",
+			"id": "51570",
+			"latitude": 54.314982,
+			"longitude": 10.131967
+		},
+		"products": {
+			"subway": false,
+			"suburban": false,
+			"akn": false,
+			"regional-express-train": true,
+			"regional-train": true,
+			"ferry": false,
+			"bus": true,
+			"express-bus": false,
+			"anruf-sammel-taxi": false,
+			"long-distance-train": true,
+			"long-distance-bus": false
+		}
+	},
+	"departure": "2020-11-29T22:22:00+01:00",
+	"plannedDeparture": "2020-11-29T22:22:00+01:00",
+	"departureDelay": 0,
+	"arrival": "2020-11-29T23:38:00+01:00",
+	"plannedArrival": "2020-11-29T23:38:00+01:00",
+	"arrivalDelay": 0,
+	"arrivalPlatform": "1",
+	"plannedArrivalPlatform": "1",
+	"departurePlatform": "7G-I",
+	"plannedDeparturePlatform": "7G-I",
+	"stopovers": [
+		{
+			"stop": {
+				"type": "stop",
+				"id": "21132",
+				"name": "Hamburg Hbf",
+				"location": {
+					"type": "location",
+					"id": "21132",
+					"latitude": 53.552751,
+					"longitude": 10.007942
+				},
+				"products": {
+					"subway": false,
+					"suburban": true,
+					"akn": true,
+					"regional-express-train": true,
+					"regional-train": true,
+					"ferry": false,
+					"bus": false,
+					"express-bus": false,
+					"anruf-sammel-taxi": false,
+					"long-distance-train": true,
+					"long-distance-bus": false
+				}
+			},
+			"arrival": null,
+			"plannedArrival": null,
+			"arrivalDelay": null,
+			"arrivalPlatform": null,
+			"plannedArrivalPlatform": null,
+			"departure": "2020-11-29T22:22:00+01:00",
+			"plannedDeparture": "2020-11-29T22:22:00+01:00",
+			"departureDelay": 0,
+			"departurePlatform": "7G-I",
+			"plannedDeparturePlatform": "7G-I"
+		},
+		{
+			"stop": {
+				"type": "stop",
+				"id": "51666",
+				"name": "Hamburg Dammtor",
+				"location": {
+					"type": "location",
+					"id": "51666",
+					"latitude": 53.560751,
+					"longitude": 9.989569
+				},
+				"products": {
+					"subway": false,
+					"suburban": false,
+					"akn": true,
+					"regional-express-train": true,
+					"regional-train": true,
+					"ferry": false,
+					"bus": true,
+					"express-bus": false,
+					"anruf-sammel-taxi": false,
+					"long-distance-train": true,
+					"long-distance-bus": false
+				}
+			},
+			"arrival": "2020-11-29T22:25:00+01:00",
+			"plannedArrival": "2020-11-29T22:25:00+01:00",
+			"arrivalDelay": 0,
+			"arrivalPlatform": "3",
+			"plannedArrivalPlatform": "3",
+			"departure": "2020-11-29T22:26:00+01:00",
+			"plannedDeparture": "2020-11-29T22:26:00+01:00",
+			"departureDelay": 0,
+			"departurePlatform": "3",
+			"plannedDeparturePlatform": "3"
+		},
+		{
+			"stop": {
+				"type": "stop",
+				"id": "51552",
+				"name": "Elmshorn",
+				"location": {
+					"type": "location",
+					"id": "51552",
+					"latitude": 53.754559,
+					"longitude": 9.659323
+				},
+				"products": {
+					"subway": false,
+					"suburban": false,
+					"akn": true,
+					"regional-express-train": true,
+					"regional-train": true,
+					"ferry": false,
+					"bus": true,
+					"express-bus": false,
+					"anruf-sammel-taxi": false,
+					"long-distance-train": true,
+					"long-distance-bus": false
+				}
+			},
+			"arrival": "2020-11-29T22:47:00+01:00",
+			"plannedArrival": "2020-11-29T22:47:00+01:00",
+			"arrivalDelay": 0,
+			"arrivalPlatform": "1",
+			"plannedArrivalPlatform": "1",
+			"departure": "2020-11-29T22:48:00+01:00",
+			"plannedDeparture": "2020-11-29T22:48:00+01:00",
+			"departureDelay": 0,
+			"departurePlatform": "1",
+			"plannedDeparturePlatform": "1"
+		},
+		{
+			"stop": {
+				"type": "stop",
+				"id": "21333",
+				"name": "Wrist",
+				"location": {
+					"type": "location",
+					"id": "21333",
+					"latitude": 53.932653,
+					"longitude": 9.748424
+				},
+				"products": {
+					"subway": false,
+					"suburban": false,
+					"akn": false,
+					"regional-express-train": true,
+					"regional-train": true,
+					"ferry": false,
+					"bus": false,
+					"express-bus": false,
+					"anruf-sammel-taxi": false,
+					"long-distance-train": false,
+					"long-distance-bus": false
+				}
+			},
+			"arrival": "2020-11-29T23:00:00+01:00",
+			"plannedArrival": "2020-11-29T23:00:00+01:00",
+			"arrivalDelay": 0,
+			"arrivalPlatform": "1",
+			"plannedArrivalPlatform": "1",
+			"departure": "2020-11-29T23:01:00+01:00",
+			"plannedDeparture": "2020-11-29T23:01:00+01:00",
+			"departureDelay": 0,
+			"departurePlatform": "1",
+			"plannedDeparturePlatform": "1"
+		},
+		{
+			"stop": {
+				"type": "stop",
+				"id": "21079",
+				"name": "Brokstedt",
+				"location": {
+					"type": "location",
+					"id": "21079",
+					"latitude": 53.990076,
+					"longitude": 9.823798
+				},
+				"products": {
+					"subway": false,
+					"suburban": false,
+					"akn": false,
+					"regional-express-train": true,
+					"regional-train": false,
+					"ferry": false,
+					"bus": false,
+					"express-bus": false,
+					"anruf-sammel-taxi": false,
+					"long-distance-train": false,
+					"long-distance-bus": false
+				}
+			},
+			"arrival": "2020-11-29T23:06:00+01:00",
+			"plannedArrival": "2020-11-29T23:06:00+01:00",
+			"arrivalDelay": 0,
+			"arrivalPlatform": "1",
+			"plannedArrivalPlatform": "1",
+			"departure": "2020-11-29T23:07:00+01:00",
+			"plannedDeparture": "2020-11-29T23:07:00+01:00",
+			"departureDelay": 0,
+			"departurePlatform": "1",
+			"plannedDeparturePlatform": "1"
+		},
+		{
+			"stop": {
+				"type": "stop",
+				"id": "51588",
+				"name": "Neumünster",
+				"location": {
+					"type": "location",
+					"id": "51588",
+					"latitude": 54.075051,
+					"longitude": 9.979573
+				},
+				"products": {
+					"subway": false,
+					"suburban": false,
+					"akn": true,
+					"regional-express-train": true,
+					"regional-train": true,
+					"ferry": false,
+					"bus": true,
+					"express-bus": false,
+					"anruf-sammel-taxi": false,
+					"long-distance-train": true,
+					"long-distance-bus": false
+				}
+			},
+			"arrival": "2020-11-29T23:17:00+01:00",
+			"plannedArrival": "2020-11-29T23:17:00+01:00",
+			"arrivalDelay": 0,
+			"arrivalPlatform": "3",
+			"plannedArrivalPlatform": "3",
+			"departure": "2020-11-29T23:18:00+01:00",
+			"plannedDeparture": "2020-11-29T23:18:00+01:00",
+			"departureDelay": 0,
+			"departurePlatform": "3",
+			"plannedDeparturePlatform": "3"
+		},
+		{
+			"stop": {
+				"type": "stop",
+				"id": "21072",
+				"name": "Bordesholm",
+				"location": {
+					"type": "location",
+					"id": "21072",
+					"latitude": 54.174373,
+					"longitude": 10.043711
+				},
+				"products": {
+					"subway": false,
+					"suburban": false,
+					"akn": false,
+					"regional-express-train": true,
+					"regional-train": false,
+					"ferry": false,
+					"bus": false,
+					"express-bus": false,
+					"anruf-sammel-taxi": false,
+					"long-distance-train": false,
+					"long-distance-bus": false
+				}
+			},
+			"arrival": "2020-11-29T23:25:00+01:00",
+			"plannedArrival": "2020-11-29T23:25:00+01:00",
+			"arrivalDelay": 0,
+			"arrivalPlatform": "2",
+			"plannedArrivalPlatform": "2",
+			"departure": "2020-11-29T23:26:00+01:00",
+			"plannedDeparture": "2020-11-29T23:26:00+01:00",
+			"departureDelay": 0,
+			"departurePlatform": "2",
+			"plannedDeparturePlatform": "2"
+		},
+		{
+			"stop": {
+				"type": "stop",
+				"id": "51570",
+				"name": "Kiel Hbf",
+				"location": {
+					"type": "location",
+					"id": "51570",
+					"latitude": 54.314982,
+					"longitude": 10.131967
+				},
+				"products": {
+					"subway": false,
+					"suburban": false,
+					"akn": false,
+					"regional-express-train": true,
+					"regional-train": true,
+					"ferry": false,
+					"bus": true,
+					"express-bus": false,
+					"anruf-sammel-taxi": false,
+					"long-distance-train": true,
+					"long-distance-bus": false
+				}
+			},
+			"arrival": "2020-11-29T23:38:00+01:00",
+			"plannedArrival": "2020-11-29T23:38:00+01:00",
+			"arrivalDelay": 0,
+			"arrivalPlatform": "1",
+			"plannedArrivalPlatform": "1",
+			"departure": null,
+			"plannedDeparture": null,
+			"departureDelay": null,
+			"departurePlatform": null,
+			"plannedDeparturePlatform": null
+		}
+	],
+	"remarks": [
+		{
+			"type": "hint",
+			"code": "GS",
+			"text": "Fahrzeuggebundene Einstiegshilfe vorhanden"
+		},
+		{
+			"id": "HIM_ADAPTER_FREETEXT_2911221380",
+			"type": "warning",
+			"summary": "Verbot von Gesichts- und Kinnvisieren im HVV",
+			"text": "Aktuell besteht in allen Bahnen, Bussen und Fähren des HVV sowie an allen Haltestellen die Pflicht zum Tragen eines Mund-Nasen-Schutzes. \nGesichts- und Kinnvisiere aus z.B. Plexiglas sind nicht zulässig.\nBei Zuwiderhandlung ist eine Vertragsstrafe von 40 Euro zu zahlen.\n",
+			"icon": {
+				"type": "rt_warn",
+				"title": null
+			},
+			"priority": 100,
+			"products": {
+				"subway": true,
+				"suburban": true,
+				"akn": true,
+				"regional-express-train": true,
+				"regional-train": true,
+				"ferry": true,
+				"bus": true,
+				"express-bus": true,
+				"anruf-sammel-taxi": true,
+				"long-distance-train": true,
+				"long-distance-bus": true
+			},
+			"category": 0,
+			"validFrom": "2020-11-22T01:00:00+01:00",
+			"validUntil": "2021-01-01T06:59:59+01:00",
+			"modified": "2020-11-29T22:13:55+01:00"
+		}
+	]
+}
