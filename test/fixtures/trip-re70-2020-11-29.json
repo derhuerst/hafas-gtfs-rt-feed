@@ -76,6 +76,7 @@
 	"plannedDeparturePlatform": "7G-I",
 	"stopovers": [
 		{
+			"stopoverIndex": 2,
 			"stop": {
 				"type": "stop",
 				"id": "21132",
@@ -112,6 +113,7 @@
 			"plannedDeparturePlatform": "7G-I"
 		},
 		{
+			"stopoverIndex": 3,
 			"stop": {
 				"type": "stop",
 				"id": "51666",
@@ -148,6 +150,7 @@
 			"plannedDeparturePlatform": "3"
 		},
 		{
+			"stopoverIndex": 10,
 			"stop": {
 				"type": "stop",
 				"id": "51552",
@@ -184,6 +187,7 @@
 			"plannedDeparturePlatform": "1"
 		},
 		{
+			"stopoverIndex": 11,
 			"stop": {
 				"type": "stop",
 				"id": "21333",
@@ -220,6 +224,7 @@
 			"plannedDeparturePlatform": "1"
 		},
 		{
+			"stopoverIndex": 12,
 			"stop": {
 				"type": "stop",
 				"id": "21079",
@@ -256,6 +261,7 @@
 			"plannedDeparturePlatform": "1"
 		},
 		{
+			"stopoverIndex": 13,
 			"stop": {
 				"type": "stop",
 				"id": "51588",
@@ -328,6 +334,7 @@
 			"plannedDeparturePlatform": "2"
 		},
 		{
+			"stopoverIndex": 15,
 			"stop": {
 				"type": "stop",
 				"id": "51570",
