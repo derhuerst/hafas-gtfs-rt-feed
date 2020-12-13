@@ -319,3 +319,37 @@ test('formatVehiclePosition computes stop_id & current_status correctly', (t) =>
 
 	t.end()
 })
+
+test('formatTripUpdate prefers `gtfs` ids', (t) => {
+	const base = {
+		id: 'some-trip-id',
+		routeId: 'some-route-id',
+		stopovers: [],
+	}
+
+	const r1 = formatTripUpdate({
+		...base,
+		ids: {gtfs: 'a'},
+	})
+	t.equal(r1.trip.trip_id, 'a', 'r1.trip.trip_id')
+	t.equal(r1.trip.route_id, 'some-route-id', 'r1.trip.route_id')
+
+	const r2 = formatTripUpdate({
+		...base,
+		routeId: null,
+		line: {ids: {gtfs: 'b'}},
+	})
+	t.equal(r2.trip.trip_id, 'some-trip-id', 'r2.trip.trip_id')
+	t.equal(r2.trip.route_id, 'b', 'r2.trip.route_id')
+
+	const r3 = formatTripUpdate({
+		...base,
+		ids: {gtfs: 'c'},
+		routeId: null,
+		line: {ids: {gtfs: 'd'}},
+	})
+	t.equal(r3.trip.trip_id, 'c', 'r3.trip.trip_id')
+	t.equal(r3.trip.route_id, 'd', 'r3.trip.route_id')
+
+	t.end()
+})
