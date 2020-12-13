@@ -28,7 +28,12 @@ test('formatStopTimeUpdate prefers a `gtfs` id', (t) => {
 test('formatTripUpdate works with HVV RE70', (t) => {
 	const gtfsRt = formatTripUpdate(hvvRe70Trip)
 	t.deepEqual(gtfsRt, {
-		trip: {trip_id: '1|33779|0|80|29112020', route_id: 'z-re70'},
+		trip: {
+			trip_id: '1|33779|0|80|29112020',
+			route_id: 'z-re70',
+			start_time: '22:22:00',
+			start_date: '20201129',
+		},
 		vehicle: {id: '41395', label: 'Kiel Hbf'},
 		stop_time_update: [{
 			stop_id: '21132',
@@ -75,10 +80,15 @@ test('formatTripUpdate works with HVV RE70', (t) => {
 	t.end()
 })
 
-test('formatTripUpdate works with HVV RE70', (t) => {
+test('formatTripUpdate works with HVV U1', (t) => {
 	const gtfsRt = formatTripUpdate(hvvU1Trip)
 	t.deepEqual(gtfsRt, {
-		trip: {trip_id: '1|13672|1|80|29112020', route_id: 'hha-b-911'},
+		trip: {
+			trip_id: '1|13672|1|80|29112020',
+			route_id: 'hha-b-911',
+			start_time: '23:17:00',
+			start_date: '20201129',
+		},
 		vehicle: {id: '76815', label: 'Ochsenzoll'},
 		stop_time_update: [{
 			stop_id: '16413',
