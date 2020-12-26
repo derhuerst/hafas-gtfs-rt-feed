@@ -105,9 +105,9 @@
 			"arrivalDelay": null,
 			"arrivalPlatform": null,
 			"plannedArrivalPlatform": null,
-			"departure": "2020-11-29T23:17:00+01:00",
+			"departure": "2020-11-29T23:17:10+01:00",
 			"plannedDeparture": "2020-11-29T23:17:00+01:00",
-			"departureDelay": 0,
+			"departureDelay": 10,
 			"departurePlatform": null,
 			"plannedDeparturePlatform": null
 		},
@@ -208,14 +208,14 @@
 					"long-distance-bus": false
 				}
 			},
-			"arrival": "2020-11-29T23:23:00+01:00",
+			"arrival": "2020-11-29T23:23:20+01:00",
 			"plannedArrival": "2020-11-29T23:23:00+01:00",
-			"arrivalDelay": 0,
+			"arrivalDelay": 20,
 			"arrivalPlatform": null,
 			"plannedArrivalPlatform": null,
-			"departure": "2020-11-29T23:23:00+01:00",
+			"departure": "2020-11-29T23:23:30+01:00",
 			"plannedDeparture": "2020-11-29T23:23:00+01:00",
-			"departureDelay": 0,
+			"departureDelay": 30,
 			"departurePlatform": null,
 			"plannedDeparturePlatform": null
 		},

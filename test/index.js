@@ -83,7 +83,8 @@ test('formatTripUpdate works with HVV RE70', (t) => {
 			arrival: {time: 1606689480, delay: 0},
 			departure: {time: null, delay: null},
 			schedule_relationship: 0,
-		}]
+		}],
+		delay: null,
 	})
 	t.end()
 })
@@ -102,7 +103,7 @@ test('formatTripUpdate works with HVV U1', (t) => {
 			stop_id: '16413',
 			stop_sequence: null,
 			arrival: {time: null, delay: null},
-			departure: {time: 1606688220, delay: 0},
+			departure: {time: 1606688230, delay: 10},
 			schedule_relationship: 0,
 		}, {
 			stop_id: '16411',
@@ -119,8 +120,8 @@ test('formatTripUpdate works with HVV U1', (t) => {
 		}, {
 			stop_id: '98093',
 			stop_sequence: null,
-			arrival: {time: 1606688580, delay: 0},
-			departure: {time: 1606688580, delay: 0},
+			arrival: {time: 1606688600, delay: 20},
+			departure: {time: 1606688610, delay: 30},
 			schedule_relationship: 0,
 		}, {
 			stop_id: '16369',
@@ -308,8 +309,43 @@ test('formatTripUpdate works with HVV U1', (t) => {
 			arrival: {time: 1606691940, delay: 0},
 			departure: {time: null, delay: null},
 			schedule_relationship: 0,
-		}]
+		}],
+		delay: null,
 	})
+	t.end()
+})
+
+test('formatTripUpdate computes delay correctly', (t) => {
+	const withNow = now => formatTripUpdate(hvvU1Trip, {now})
+
+	const oldenfeldeStopover = hvvU1Trip.stopovers.find(st => st.stop.id === '98093')
+	const arrAtOldenfelde = Date.parse(oldenfeldeStopover.arrival)
+	const arrDelayAtOldenfelde = oldenfeldeStopover.arrivalDelay
+	const depAtOldenfelde = Date.parse(oldenfeldeStopover.departure)
+	const depDelayAtOldenfelde = oldenfeldeStopover.departureDelay
+
+	const beforeOldenfeldeArr = withNow(arrAtOldenfelde - 60 * 1000)
+	t.equal(beforeOldenfeldeArr.delay, 20, 'beforeOldenfeldeArr.delay')
+	const atOldenfeldeArr = withNow(arrAtOldenfelde)
+	t.equal(atOldenfeldeArr.delay, 30, 'atOldenfeldeArr.delay')
+	const atOldenfelde = withNow(arrAtOldenfelde + 3 * 1000)
+	t.equal(atOldenfelde.delay, 30, 'atOldenfelde.delay')
+	const atOldenfeldeDep = withNow(depAtOldenfelde)
+	t.equal(atOldenfeldeDep.delay, 30, 'atOldenfeldeDep.delay')
+	const afterOldenfeldeDep = withNow(depAtOldenfelde + 1 * 1000)
+	t.equal(afterOldenfeldeDep.delay, 0, 'afterOldenfeldeDep.delay')
+
+	const volksdorfStopover = hvvU1Trip.stopovers[0]
+	const depAtVolksdorf = Date.parse(volksdorfStopover.departure)
+	const depDelayAtVolksdorf = volksdorfStopover.departureDelay
+
+	const beforeVolksdorfDep = withNow(depAtVolksdorf - 1 * 1000)
+	t.equal(beforeVolksdorfDep.delay, 10, 'beforeVolksdorfDep.delay')
+	const atVolksdorfDep = withNow(depAtVolksdorf)
+	t.equal(atVolksdorfDep.delay, 10, 'atVolksdorfDep.delay')
+	const afterVolksdorfDep = withNow(depAtVolksdorf + 1 * 1000)
+	t.equal(afterVolksdorfDep.delay, 0, 'afterVolksdorfDep.delay')
+
 	t.end()
 })
 
