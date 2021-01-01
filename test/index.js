@@ -409,9 +409,10 @@ test('formatTripUpdate prefers `gtfs` ids', (t) => {
 	const r1 = formatTripUpdate({
 		...base,
 		ids: {gtfs: 'a'},
+		routeIds: {gtfs: 'b'},
 	})
 	t.equal(r1.trip.trip_id, 'a', 'r1.trip.trip_id')
-	t.equal(r1.trip.route_id, 'some-route-id', 'r1.trip.route_id')
+	t.equal(r1.trip.route_id, 'b', 'r1.trip.route_id')
 
 	const r2 = formatTripUpdate({
 		...base,
