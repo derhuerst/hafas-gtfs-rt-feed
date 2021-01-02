@@ -2,10 +2,7 @@
 
 const {TripUpdate, VehiclePosition, FeedEntity} = require('gtfs-rt-bindings')
 const {Readable} = require('stream')
-const {
-	formatTripUpdate,
-	formatVehiclePosition,
-} = require('./lib/format')
+const writer = require('./lib/gtfs-rt-writer')
 
 const createGtfsRtWriter = (opt = {}) => {
 	const {
@@ -15,7 +12,11 @@ const createGtfsRtWriter = (opt = {}) => {
 		...opt
 	}
 
-	let id = 0
+	const {
+		formatTrip,
+		formatMovement,
+	} = writer()
+
 	const writeFeedEntity = (entity) => {
 		entity.id = (++id) + ''
 		out.push(encodePbf ? FeedEntity.encode(entity) : entity)
@@ -32,9 +33,7 @@ const createGtfsRtWriter = (opt = {}) => {
 	const writeTrip = (trip) => {
 		// todo: validate using ajv
 		try {
-			writeFeedEntity({
-				trip_update: formatTripUpdate(trip)
-			})
+			out.push(formatTrip(trip))
 		} catch(err) {
 			out.emit('error', err)
 		}
@@ -43,9 +42,7 @@ const createGtfsRtWriter = (opt = {}) => {
 	const writePosition = (_, movement) => {
 		// todo: validate using ajv
 		try {
-			writeFeedEntity({
-				vehicle: formatVehiclePosition(movement)
-			})
+			out.push(formatMovement(movement))
 		} catch(err) {
 			out.emit('error', err)
 		}
