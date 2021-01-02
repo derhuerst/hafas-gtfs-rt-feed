@@ -4,6 +4,7 @@
 	"version": "3.4.0",
 	"main": "index.js",
 	"files": [
+		"monitor.js",
 		"lib",
 		"LICENSE",
 		"LICENSE-PROSPERITY.md",
@@ -41,11 +42,13 @@
 		"node": ">=12"
 	},
 	"dependencies": {
-		"debug": "^4.1.1",
+		"@derhuerst/round-robin-scheduler": "^1.0.4",
 		"gtfs-rt-bindings": "^3.1.0",
 		"gtfs-rt-differential-to-full-dataset": "^1.0.0",
+		"hafas-monitor-trips": "^4.0.0",
 		"lodash": "^4.17.20",
-		"luxon": "^1.25.0"
+		"luxon": "^1.25.0",
+		"pino": "^6.7.0"
 	},
 	"peerDependencies": {
 		"hafas-client": "^5"

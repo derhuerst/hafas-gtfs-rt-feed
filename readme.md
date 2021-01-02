@@ -8,6 +8,10 @@
 [![support me via GitHub Sponsors](https://img.shields.io/badge/support%20me-donate-fa7664.svg)](https://github.com/sponsors/derhuerst)
 [![chat with me on Twitter](https://img.shields.io/badge/chat%20with%20me-on%20Twitter-1da1f2.svg)](https://twitter.com/derhuerst)
 
+`hafas-gtfs-rt-feed`
+
+1. gets a [`hafas-client`](https://github.com/public-transport/hafas-client) instance passed in, and uses [`hafas-monitor-trips`](https://github.com/derhuerst/hafas-monitor-trips) to poll live data about all vehicles in the specified bounding box.
+
 
 ## Installing
 
