@@ -4,9 +4,6 @@
 	"version": "3.4.0",
 	"main": "index.js",
 	"files": [
-		"index.js",
-		"writer.js",
-		"as-dump.js",
 		"lib",
 		"LICENSE",
 		"LICENSE-PROSPERITY.md",
@@ -41,7 +38,7 @@
 		}
 	],
 	"engines": {
-		"node": ">=10"
+		"node": ">=12"
 	},
 	"dependencies": {
 		"debug": "^4.1.1",
@@ -50,20 +47,15 @@
 		"lodash": "^4.17.20",
 		"luxon": "^1.25.0"
 	},
-	"devDependencies": {
-		"bvg-hafas": "^3.0.0",
-		"eslint": "^7.14.0",
-		"hafas-monitor-trips": "^3.0.0",
-		"length-prefixed-stream": "^2.0.0",
-		"tap-min": "^2.0.0",
-		"tape": "^5.0.1"
-	},
 	"peerDependencies": {
 		"hafas-client": "^5"
 	},
+	"devDependencies": {
+		"eslint": "^7.11.0"
+	},
 	"scripts": {
 		"lint": "eslint .",
-		"test": "node test/index.js | tap-min",
+		"test": "echo todo; exit 1",
 		"prepublishOnly": "npm run lint && npm test"
 	}
 }

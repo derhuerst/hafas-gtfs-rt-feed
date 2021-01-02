@@ -7,3 +7,7 @@ npm-debug.log
 pnpm-debug.log
 
 /package-lock.json
+/yarn.lock
+/shrinkwrap.yaml
+
+/dump.rdb
