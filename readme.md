@@ -12,6 +12,7 @@
 
 1. gets a [`hafas-client`](https://github.com/public-transport/hafas-client) instance passed in, and uses [`hafas-monitor-trips`](https://github.com/derhuerst/hafas-monitor-trips) to poll live data about all vehicles in the specified bounding box.
 2. uses [`match-gtfs-rt-to-gtfs`](https://github.com/derhuerst/match-gtfs-rt-to-gtfs) to match the HAFAS-ish data against static GTFS data imported in a database using [`gtfs-via-postgres`](https://github.com/derhuerst/gtfs-via-postgres).
+3. uses [`gtfs-rt-differential-to-full-dataset`](https://github.com/derhuerst/gtfs-rt-differential-to-full-dataset) to aggregate the data into a single [GTFS Realtime (GTFS-RT)](https://developers.google.com/transit/gtfs-realtime/) feed, and [`serve-buffer`](https://github.com/derhuerst/serve-buffer) to serve the feed from memory.
 
 
 ## Installing

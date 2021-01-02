@@ -6,6 +6,7 @@
 	"files": [
 		"monitor.js",
 		"match.js",
+		"serve.js",
 		"lib",
 		"LICENSE",
 		"LICENSE-PROSPERITY.md",
@@ -44,8 +45,11 @@
 	},
 	"dependencies": {
 		"@derhuerst/round-robin-scheduler": "^1.0.4",
+		"cors": "^2.8.5",
+		"debug": "^4.1.1",
+		"etag": "^1.8.1",
 		"gtfs-rt-bindings": "^3.1.0",
-		"gtfs-rt-differential-to-full-dataset": "^1.0.0",
+		"gtfs-rt-differential-to-full-dataset": "^1.1.0",
 		"hafas-monitor-trips": "^4.0.0",
 		"live-moving-average": "^1.1.0",
 		"lodash": "^4.17.20",
@@ -54,7 +58,8 @@
 		"ndjson": "^2.0.0",
 		"p-limit": "^3.0.2",
 		"parallel-stream": "^1.1.2",
-		"pino": "^6.7.0"
+		"pino": "^6.7.0",
+		"serve-buffer": "^2.3.0"
 	},
 	"peerDependencies": {
 		"hafas-client": "^5"
