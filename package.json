@@ -5,6 +5,7 @@
 	"main": "index.js",
 	"files": [
 		"monitor.js",
+		"match.js",
 		"lib",
 		"LICENSE",
 		"LICENSE-PROSPERITY.md",
@@ -46,8 +47,13 @@
 		"gtfs-rt-bindings": "^3.1.0",
 		"gtfs-rt-differential-to-full-dataset": "^1.0.0",
 		"hafas-monitor-trips": "^4.0.0",
+		"live-moving-average": "^1.1.0",
 		"lodash": "^4.17.20",
 		"luxon": "^1.25.0",
+		"match-gtfs-rt-to-gtfs": "^3.4.0",
+		"ndjson": "^2.0.0",
+		"p-limit": "^3.0.2",
+		"parallel-stream": "^1.1.2",
 		"pino": "^6.7.0"
 	},
 	"peerDependencies": {
