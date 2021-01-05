@@ -2,8 +2,6 @@
 
 const {cpus: osCpus} = require('os')
 const movingAvg = require('live-moving-average')
-// todo: use lib/logger
-const debug = require('debug')('berlin-gtfs-rt-server:match')
 const pLimit = require('p-limit')
 const {
 	createMatchTrip,
@@ -79,12 +77,15 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 			trip = await matchTripWithGtfs(trip)
 			const t2 = Date.now()
 
-			const isMatched = trip.ids && trip.ids['vbb-gtfs']
-			debug(
+			const isMatched = trip.ids && trip.ids[gtfsInfo.endpointName]
+			logger.debug({
+				origTripId,
+				isMatched, matchTime: t2 - t1, waitTime: t1 - t0,
+			}, [
 				isMatched ? 'matched' : 'failed to match',
 				'trip in', t2 - t1,
 				'after', t1 - t0, 'waiting',
-			)
+			].join(' '))
 			avgMatchTime.push(t2 - t1)
 			avgWaitTime.push(t1 - t0)
 			if (isMatched) {
@@ -120,12 +121,15 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 			mv = await matchMovementWithGtfs(mv)
 			const t2 = Date.now()
 
-			const isMatched = mv.tripIds && mv.tripIds['vbb-gtfs']
-			debug(
+			const isMatched = mv.tripIds && mv.tripIds[gtfsInfo.endpointName]
+			logger.debug({
+				origTripId,
+				isMatched, matchTime: t2 - t1, waitTime: t1 - t0,
+			}, [
 				isMatched ? 'matched' : 'failed to match',
 				'movement in', t2 - t1,
 				'after', t1 - t0, 'waiting',
-			)
+			].join(' '))
 			avgMatchTime.push(t2 - t1)
 			avgWaitTime.push(t1 - t0)
 			if (isMatched) {
