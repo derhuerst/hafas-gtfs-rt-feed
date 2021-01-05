@@ -1,5 +1,6 @@
 'use strict'
 
+const {cpus: osCpus} = require('os')
 const movingAvg = require('live-moving-average')
 // todo: use lib/logger
 const debug = require('debug')('berlin-gtfs-rt-server:match')
@@ -36,7 +37,8 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 			: 10 * 1000, // 10s
 		matchConcurrency: process.env.MATCH_CONCURRENCY
 			? parseInt(process.env.MATCH_CONCURRENCY)
-			: 8, // 10s
+			// todo: this makes assumptions about how PostgreSQL scales
+			: osCpus().length + 1,
 		...opt,
 	}
 
@@ -63,7 +65,7 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 		// hack around this here.
 		// see also sindresorhus/p-limit#25
 		let cancelled = false
-		setTimeout(() => {
+		const timeout = setTimeout(() => {
 			cancelled = true
 			cancelledMatches++
 		}, matchTripTimeout)
@@ -71,6 +73,7 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 		const t0 = Date.now()
 		await limit(async () => {
 			if (cancelled) return;
+			clearTimeout(timeout)
 
 			const t1 = Date.now()
 			trip = await matchTripWithGtfs(trip)
@@ -103,7 +106,7 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 		// hack around this here.
 		// see also sindresorhus/p-limit#25
 		let cancelled = false
-		setTimeout(() => {
+		const timeout = setTimeout(() => {
 			cancelled = true
 			cancelledMatches++
 		}, matchMovementTimeout)
@@ -111,6 +114,7 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 		const t0 = Date.now()
 		await limit(async () => {
 			if (cancelled) return;
+			clearTimeout(timeout)
 
 			const t1 = Date.now()
 			mv = await matchMovementWithGtfs(mv)
