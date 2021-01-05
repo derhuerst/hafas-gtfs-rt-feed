@@ -11,3 +11,6 @@ pnpm-debug.log
 /shrinkwrap.yaml
 
 /dump.rdb
+
+/test/matched.ndjson
+/test/gtfs

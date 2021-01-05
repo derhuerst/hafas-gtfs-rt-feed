@@ -66,11 +66,17 @@
 		"hafas-client": "^5.13.0"
 	},
 	"devDependencies": {
-		"eslint": "^7.11.0"
+		"eslint": "^7.11.0",
+		"gtfs-via-postgres": "^2.4.2",
+		"hafas-client": "*",
+		"print-gtfs-rt-cli": "^1.2.0",
+		"sample-gtfs-feed": "^0.7.0",
+		"slugg": "^1.2.1",
+		"tokenize-vbb-station-name": "^1.1.0"
 	},
 	"scripts": {
 		"lint": "eslint .",
-		"test": "echo todo; exit 1",
+		"test": "./test/index.sh",
 		"prepublishOnly": "npm run lint && npm test"
 	}
 }
