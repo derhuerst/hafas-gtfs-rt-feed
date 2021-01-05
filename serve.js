@@ -21,7 +21,7 @@ const onError = (err) => {
 }
 
 const {
-	formatTrip, formatPosition,
+	formatTrip, formatMovement,
 } = createGtfsRtWriter()
 
 const differentialToFull = differentialToFullDataset({
@@ -35,7 +35,7 @@ pipeline(
 		objectMode: true,
 		transform: (item, _, cb) => {
 			if (item[0] === POSITION) {
-				cb(null, formatPosition(item[1], item[2]))
+				cb(null, formatMovement(item[2]))
 			} else if (item[0] === TRIP) {
 				cb(null, formatTrip(item[1]))
 			} else {
