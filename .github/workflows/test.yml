@@ -1,0 +1,42 @@
+name: test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: setup Node v${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - run: npm install
+    - run: npm run lint
+
+    - name: install & start PostgreSQL with PostGIS
+      uses: huaxk/postgis-action@v1
+      with:
+        postgresql password: password
+        postgresql user: postgres
+        postgresql db: postgres
+
+    - name: install & start Redis
+      uses: supercharge/redis-github-action@1.1.0
+      # with:
+      #   redis-version: ${{ matrix.redis-version }}
+
+    - name: npm test
+      run : npm test
+      env:
+        PGHOST: localhost
+        PGPORT: '5432'
+        PGUSER: postgres
+        PGPASSWORD: password
+        PGDATABASE: postgres
