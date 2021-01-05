@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+'use strict'
+
+require('match-gtfs-rt-to-gtfs/build-index')

@@ -62,7 +62,8 @@
 		"serve-buffer": "^2.3.0"
 	},
 	"peerDependencies": {
-		"hafas-client": "^5"
+		"gtfs-via-postgres": "^2.4.2",
+		"hafas-client": "^5.13.0"
 	},
 	"devDependencies": {
 		"eslint": "^7.11.0"
