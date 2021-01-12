@@ -52,107 +52,110 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 	const matchTripWithGtfs = createMatchTrip(gtfsRtInfo, gtfsInfo)
 	const matchMovementWithGtfs = createMatchMovement(gtfsRtInfo, gtfsInfo)
 
-	let items = 0
+	let receivedItems = 0
 	let matchedItems = 0
 	let cancelledMatches = 0
-	const avgWaitTime = movingAvg(100, 0)
-	const avgMatchTime = movingAvg(100, 0)
+	const avgWaitTime = movingAvg(100, 30) // past 100 items, pre-fill with 30ms
+	const avgMatchTime = movingAvg(100, 30) // past 100 items, pre-fill with 30ms
 	const seenTripIds = new Set()
 	const matchedTripIds = new Set()
 
 	const limit = pLimit(matchConcurrency)
 
-	// todo: DRY with matchMovement
-	const matchTrip = async (trip) => {
-		items++
-		const origTripId = trip.id
-		seenTripIds.add(origTripId)
-
-		// Promises returned by p-limit are not cancelable yet, but we can
-		// hack around this here.
-		// see also sindresorhus/p-limit#25
-		let cancelled = false
-		const timeout = setTimeout(() => {
-			cancelled = true
-			cancelledMatches++
-		}, matchTripTimeout)
-
-		const t0 = Date.now()
-		await limit(async () => {
-			if (cancelled) return;
-			clearTimeout(timeout)
-
-			const t1 = Date.now()
-			trip = await matchTripWithGtfs(trip)
-			const t2 = Date.now()
-
-			const isMatched = trip.ids && trip.ids[gtfsInfo.endpointName]
-			logger.debug({
-				origTripId,
-				isMatched, matchTime: t2 - t1, waitTime: t1 - t0,
-			}, [
-				isMatched ? 'matched' : 'failed to match',
-				'trip in', t2 - t1,
-				'after', t1 - t0, 'waiting',
-			].join(' '))
-			avgMatchTime.push(t2 - t1)
-			avgWaitTime.push(t1 - t0)
-			if (isMatched) {
-				matchedItems++
-				matchedTripIds.add(origTripId)
-			}
-		})
-
-		return trip
+	const natsStreaming = connectToNatsStreaming(natsClusterId, natsClientId, {
+		url: natsStreamingUrl,
+		name: natsClientName,
+		maxPubAcksInflight: 300, // todo
+	})
+	const subOpts = () => {
+		return natsStreaming.subscriptionOptions()
+		.setMaxInFlight(matchConcurrency * 2) // todo
+		.setManualAckMode(true)
 	}
 
-	// todo: DRY with matchTrip
-	const matchMovement = async (mv) => {
-		items++
-		const origTripId = mv.tripId
-		seenTripIds.add(origTripId)
+	const createMatch = (kind, timeout, tripId, _isMatched, _match) => {
+		const waitAndMatch = (msg) => {
+			let item = JSON.parse(msg.getData())
+			receivedItems++
 
-		// Promises returned by p-limit are not cancelable yet, but we can
-		// hack around this here.
-		// see also sindresorhus/p-limit#25
-		let cancelled = false
-		const timeout = setTimeout(() => {
-			cancelled = true
-			cancelledMatches++
-		}, matchMovementTimeout)
+			const origTripId = tripId(tripId)
+			seenTripIds.add(origTripId)
 
-		const t0 = Date.now()
-		await limit(async () => {
-			if (cancelled) return;
-			clearTimeout(timeout)
+			// Promises returned by p-limit are not cancelable yet, but we can
+			// hack around this here.
+			// see also sindresorhus/p-limit#25
+			let cancelled = false
+			const cancelTimer = setTimeout(() => {
+				cancelled = true
+				cancelledMatches++
+			}, timeout)
 
-			const t1 = Date.now()
-			mv = await matchMovementWithGtfs(mv)
-			const t2 = Date.now()
+			const t0 = Date.now()
+			const match = async () => {
+				if (cancelled) return;
+				clearTimeout(cancelTimer)
+				const t1 = Date.now()
+				const waitTime = t1 - t0
 
-			const isMatched = mv.tripIds && mv.tripIds[gtfsInfo.endpointName]
-			logger.debug({
-				origTripId,
-				isMatched, matchTime: t2 - t1, waitTime: t1 - t0,
-			}, [
-				isMatched ? 'matched' : 'failed to match',
-				'movement in', t2 - t1,
-				'after', t1 - t0, 'waiting',
-			].join(' '))
-			avgMatchTime.push(t2 - t1)
-			avgWaitTime.push(t1 - t0)
-			if (isMatched) {
-				matchedItems++
-				matchedTripIds.add(origTripId)
+				item = await _match(item)
+				const matchTime = Date.now() - t1
+				const isMatched = _isMatched(item)
+
+				logger.debug({
+					origTripId, isMatched, matchTime, waitTime,
+				}, [
+					isMatched ? 'matched' : 'failed to match', kind,
+					'in', matchTime, 'after', waitTime, 'waiting',
+				].join(' '))
+				avgMatchTime.push(matchTime)
+				avgWaitTime.push(waitTime)
+				if (isMatched) {
+					matchedItems++
+					matchedTripIds.add(origTripId)
+				}
 			}
-		})
 
-		return mv
+			limit(match)
+			.catch(err => logger.error(err))
+			.then(() => {
+				natsStreaming.publish(`matched-${kind}s`, JSON.stringify(item), (err) => {
+					if (err) logger.error(err)
+					else msg.ack()
+				})
+			})
+		}
+		return waitAndMatch
 	}
+
+	natsStreaming.once('connect', () => {
+		const movAckWait = matchMovementTimeout * 1.1 + 1000 // todo
+		const movSubOpts = subOpts().setAckWait(movAckWait)
+		const movSub = natsStreaming.subscribe('movements', movSubOpts)
+		movSub.on('message', createMatch(
+			'movement',
+			matchMovementTimeout,
+			mv => mv.tripId,
+			mv => !!(mv.tripIds && mv.tripIds[gtfsInfo.endpointName]),
+			matchMovementWithGtfs,
+		))
+
+		const tripAckWait = matchTripTimeout * 1.1 + 1000 // todo
+		const tripSubOpts = subOpts().setAckWait(tripAckWait)
+		const tripSub = natsStreaming.subscribe('trips', tripSubOpts)
+		tripSub.on('message', createMatch(
+			'trip',
+			matchTripTimeout,
+			mv => mv.tripId,
+			mv => !!(mv.tripIds && mv.tripIds[gtfsInfo.endpointName]),
+			matchTripWithGtfs,
+		))
+
+		// todo: handle errors
+	})
 
 	const reportStats = () => {
 		logger.info({
-			items,
+			receivedItems,
 			matchedItems,
 			cancelledMatches,
 			avgMatchTime: avgMatchTime.get(),
@@ -161,57 +164,6 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 			matchedTripIds: matchedTripIds.size,
 		})
 	}
-
-	const natsStreaming = connectToNatsStreaming(natsClusterId, natsClientId, {
-		url: natsStreamingUrl,
-		name: natsClientName,
-		maxPubAcksInflight: matchConcurrency * 2, // todo
-	})
-	const subOpts = () => {
-		return natsStreaming.subscriptionOptions()
-		.setMaxInFlight(matchConcurrency * 2) // todo
-		.setManualAckMode(true)
-	}
-
-	const matcher = (match, pubChannel) => (msg) => {
-		const onPublish = (err) => {
-			if (err) logger.error(err)
-			else msg.ack()
-		}
-
-		const unmatched = JSON.parse(msg.getData())
-		match(unmatched)
-		.then((matched) => {
-			natsStreaming.publish(
-				pubChannel,
-				JSON.stringify(matched),
-				onPublish,
-			)
-		}, (err) => {
-			logger.error(err)
-			natsStreaming.publish(
-				pubChannel,
-				JSON.stringify(unmatched),
-				onPublish,
-			)
-		})
-		.catch(logger.error)
-	}
-
-	natsStreaming.once('connect', () => {
-		const posAckWait = matchTripTimeout * 1.1 + 1000 // todo
-		const posSubOpts = subOpts().setAckWait(posAckWait)
-		const posSub = natsStreaming.subscribe('positions', posSubOpts)
-		posSub.on('message', matcher(matchMovement, 'matched-positions'))
-
-		const tripsAckWait = matchTripTimeout * 1.1 + 1000 // todo
-		const tripsSubOpts = subOpts().setAckWait(tripsAckWait)
-		const tripsSub = natsStreaming.subscribe('trips', tripsSubOpts)
-		tripsSub.on('message', matcher(matchMovement, 'matched-trips'))
-
-		// todo: handle errors
-	})
-
 	const statsInterval = setInterval(reportStats, 5000)
 
 	withSoftExit(() => {
