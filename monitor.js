@@ -1,16 +1,24 @@
 'use strict'
 
 const createMonitor = require('hafas-monitor-trips')
+const {connect: connectToNatsStreaming} = require('node-nats-streaming')
 const createLogger = require('./lib/logger')
-const {POSITION, TRIP} = require('./lib/protocol')
 const withSoftExit = require('./lib/soft-exit')
+
+const MAJOR_VERSION = require('./lib/major-version')
 
 const logger = createLogger('monitor')
 
 const runMonitor = (hafas, opt = {}) => {
+	const clientId = Math.random().toString(16).slice(2, 6)
 	const {
 		bbox,
 		fetchTripsInterval,
+		natsStreamingUrl,
+		natsClusterId,
+		natsClientId,
+		natsClientName,
+		maxInflightPublishes,
 	} = {
 		bbox: process.env.BBOX
 			? JSON.parse(process.env.BBOX)
@@ -18,6 +26,11 @@ const runMonitor = (hafas, opt = {}) => {
 		fetchTripsInterval: process.env.FETCH_TRIPS_INTERVAL
 			? parseInt(process.env.FETCH_TRIPS_INTERVAL)
 			: 60 * 1000, // 60s
+		natsStreamingUrl: process.env.NATS_STREAMING_URL || 'nats://localhost:4222',
+		natsClusterId: process.env.NATS_CLUSTER_ID || 'test-cluster',
+		natsClientId: process.env.NATS_CLIENT_ID || `v${MAJOR_VERSION}-monitor-${clientId}`,
+		natsClientName: process.env.NATS_CLIENT_NAME || `v${MAJOR_VERSION}-monitor`,
+		maxInflightPublishes: 300,
 		...opt,
 	}
 
@@ -30,20 +43,31 @@ const runMonitor = (hafas, opt = {}) => {
 	})
 	monitor.on('hafas-error', logger.warn.bind(logger))
 
-	const writeNdjson = (item) => {
-		process.stdout.write(JSON.stringify(item) + '\n')
+	const natsStreaming = connectToNatsStreaming(natsClusterId, natsClientId, {
+		url: natsStreamingUrl,
+		name: natsClientName,
+		maxPubAcksInflight: maxInflightPublishes,
+	})
+
+	const publish = (channel, item) => {
+		if (natsStreaming.isClosed()) return; // todo: why?
+		natsStreaming.publish(channel, JSON.stringify(item), (err) => {
+			if (!err) return;
+			logger.error(err)
+		})
 	}
 	monitor.on('position', (loc, movement) => {
-		writeNdjson([POSITION, loc, movement])
+		publish('movements', movement)
 	})
 	monitor.on('trip', (trip) => {
-		writeNdjson([TRIP, trip])
+		publish('trips', trip)
 	})
 
 	monitor.on('stats', logger.info.bind(logger))
 
 	withSoftExit(() => {
-		logger.debug('closing trips monitor')
+		logger.debug('closing trips monitor & nats-streaming client')
+		natsStreaming.close()
 		monitor.stop()
 	})
 }

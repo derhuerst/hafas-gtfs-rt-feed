@@ -1,8 +1,7 @@
 'use strict'
 
 const differentialToFullDataset = require('gtfs-rt-differential-to-full-dataset')
-const {pipeline, Transform} = require('stream')
-const {parse: parseNdjson} = require('ndjson')
+const {connect: connectToNatsStreaming} = require('node-nats-streaming')
 const computeEtag = require('etag')
 const {gzipSync, brotliCompressSync} = require('zlib')
 const serveBuffer = require('serve-buffer')
@@ -10,8 +9,9 @@ const createCors = require('cors')
 const {createServer} = require('http')
 const createLogger = require('./lib/logger')
 const createGtfsRtWriter = require('./lib/gtfs-rt-writer')
-const {POSITION, TRIP} = require('./lib/protocol')
 const withSoftExit = require('./lib/soft-exit')
+
+const MAJOR_VERSION = require('./lib/major-version')
 
 const logger = createLogger('serve')
 
@@ -29,25 +29,37 @@ const differentialToFull = differentialToFullDataset({
 	ttl: 5 * 60 * 1000, // 5m
 })
 
-pipeline(
-	process.stdin,
-	parseNdjson(),
-	new Transform({
-		objectMode: true,
-		transform: (item, _, cb) => {
-			if (item[0] === POSITION) {
-				cb(null, formatMovement(item[2]))
-			} else if (item[0] === TRIP) {
-				cb(null, formatTrip(item[1]))
-			} else {
-				logger.warn('invalid/unknown item', item)
-				cb(null)
-			}
-		},
-	}),
-	differentialToFull,
-	onError,
-)
+const clientId = Math.random().toString(16).slice(2, 6)
+const natsStreamingUrl = process.env.NATS_STREAMING_URL || 'nats://localhost:4222'
+const natsClusterId = process.env.NATS_CLUSTER_ID || 'test-cluster'
+const natsClientId = process.env.NATS_CLIENT_ID || `v${MAJOR_VERSION}-serve-${clientId}`
+const natsClientName = process.env.NATS_CLIENT_NAME || `v${MAJOR_VERSION}-serve`
+
+const natsStreaming = connectToNatsStreaming(natsClusterId, natsClientId, {
+	url: natsStreamingUrl,
+	name: natsClientName,
+})
+
+const subOpts = () => {
+	return natsStreaming.subscriptionOptions()
+	.setMaxInFlight(300) // todo
+}
+
+natsStreaming.once('connect', () => {
+	const movSub = natsStreaming.subscribe('matched-movements', subOpts())
+	movSub.on('message', (msg) => {
+		const movement = JSON.parse(msg.getData())
+		differentialToFull.write(formatMovement(movement))
+	})
+
+	const tripsSub = natsStreaming.subscribe('matched-trips', subOpts())
+	tripsSub.on('message', (msg) => {
+		const trip = JSON.parse(msg.getData())
+		differentialToFull.write(formatTrip(trip))
+	})
+
+	// todo: handle errors
+})
 
 let feed = Buffer.alloc(0)
 let timeModified = new Date()
@@ -103,4 +115,5 @@ server.listen(3000, onError)
 
 withSoftExit(() => {
 	server.close()
+	natsStreaming.close()
 })

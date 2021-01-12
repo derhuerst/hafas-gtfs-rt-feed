@@ -6,14 +6,13 @@ const pLimit = require('p-limit')
 const {
 	createMatchTrip,
 	createMatchMovement,
-	close,
+	close: closeMatching,
 } = require('match-gtfs-rt-to-gtfs')
-const {pipeline} = require('stream')
-const {parse, stringify} = require('ndjson')
-const {transform: parallelTransform} = require('parallel-stream')
+const {connect: connectToNatsStreaming} = require('node-nats-streaming')
 const createLogger = require('./lib/logger')
-const {POSITION, TRIP} = require('./lib/protocol')
 const withSoftExit = require('./lib/soft-exit')
+
+const MAJOR_VERSION = require('./lib/major-version')
 
 const logger = createLogger('match')
 
@@ -23,10 +22,15 @@ const onError = (err) => {
 }
 
 const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
+	const clientId = Math.random().toString(16).slice(2, 6)
 	const {
 		matchTripTimeout,
 		matchMovementTimeout,
 		matchConcurrency,
+		natsStreamingUrl,
+		natsClusterId,
+		natsClientId,
+		natsClientName,
 	} = {
 		matchTripTimeout: process.env.MATCH_TRIP_TIMEOUT
 			? parseInt(process.env.MATCH_TRIP_TIMEOUT)
@@ -38,6 +42,10 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 			? parseInt(process.env.MATCH_CONCURRENCY)
 			// todo: this makes assumptions about how PostgreSQL scales
 			: osCpus().length + 1,
+		natsStreamingUrl: process.env.NATS_STREAMING_URL || 'nats://localhost:4222',
+		natsClusterId: process.env.NATS_CLUSTER_ID || 'test-cluster',
+		natsClientId: process.env.NATS_CLIENT_ID || `v${MAJOR_VERSION}-match-${clientId}`,
+		natsClientName: process.env.NATS_CLIENT_NAME || `v${MAJOR_VERSION}-match`,
 		...opt,
 	}
 
@@ -142,35 +150,6 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 		return mv
 	}
 
-	// todo: DRY this with monitor.js & serve.js
-	const transform = (item, _, cb) => {
-		if (item[0] === POSITION) {
-			const movement = item[2]
-
-			matchMovement(movement)
-			.then(movement => cb(null, [POSITION, item[1], movement]))
-			// If matching failed, we still pass on the movement.
-			.catch((err) => {
-				logger.error(err)
-				cb(null, [POSITION, item[1], movement])
-			})
-			.catch(cb)
-		} else if (item[0] === TRIP) {
-			const trip = item[1]
-
-			matchTrip(trip)
-			.then(trip => cb(null, [TRIP, trip]))
-			// If matching failed, we still pass on the trip.
-			.catch((err) => {
-				logger.error(err)
-				cb(null, [TRIP, trip])
-			})
-			.catch(cb)
-		} else {
-			cb(null, item)
-		}
-	}
-
 	const reportStats = () => {
 		logger.info({
 			items,
@@ -183,27 +162,63 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 		})
 	}
 
+	const natsStreaming = connectToNatsStreaming(natsClusterId, natsClientId, {
+		url: natsStreamingUrl,
+		name: natsClientName,
+		maxPubAcksInflight: matchConcurrency * 2, // todo
+	})
+	const subOpts = () => {
+		return natsStreaming.subscriptionOptions()
+		.setMaxInFlight(matchConcurrency * 2) // todo
+		.setManualAckMode(true)
+	}
+
+	const matcher = (match, pubChannel) => (msg) => {
+		const onPublish = (err) => {
+			if (err) logger.error(err)
+			else msg.ack()
+		}
+
+		const unmatched = JSON.parse(msg.getData())
+		match(unmatched)
+		.then((matched) => {
+			natsStreaming.publish(
+				pubChannel,
+				JSON.stringify(matched),
+				onPublish,
+			)
+		}, (err) => {
+			logger.error(err)
+			natsStreaming.publish(
+				pubChannel,
+				JSON.stringify(unmatched),
+				onPublish,
+			)
+		})
+		.catch(logger.error)
+	}
+
+	natsStreaming.once('connect', () => {
+		const posAckWait = matchTripTimeout * 1.1 + 1000 // todo
+		const posSubOpts = subOpts().setAckWait(posAckWait)
+		const posSub = natsStreaming.subscribe('positions', posSubOpts)
+		posSub.on('message', matcher(matchMovement, 'matched-positions'))
+
+		const tripsAckWait = matchTripTimeout * 1.1 + 1000 // todo
+		const tripsSubOpts = subOpts().setAckWait(tripsAckWait)
+		const tripsSub = natsStreaming.subscribe('trips', tripsSubOpts)
+		tripsSub.on('message', matcher(matchMovement, 'matched-trips'))
+
+		// todo: handle errors
+	})
+
 	const statsInterval = setInterval(reportStats, 5000)
 
-	pipeline(
-		process.stdin,
-		parse(),
-		parallelTransform(transform, {
-			objectMode: true,
-			concurrency: matchConcurrency * 2, // todo
-		}),
-		stringify(),
-		process.stdout,
-		(err) => {
-			if (err) onError(err)
-			reportStats()
-			clearInterval(statsInterval)
-			close().catch(onError)
-		},
-	)
-
 	withSoftExit(() => {
-		close().catch(onError)
+		reportStats()
+		clearInterval(statsInterval)
+		natsStreaming.close()
+		closeMatching().catch(onError)
 	})
 }
 
