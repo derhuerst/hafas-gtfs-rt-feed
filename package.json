@@ -59,7 +59,8 @@
 		"node-nats-streaming": "^0.3.2",
 		"p-limit": "^3.0.2",
 		"pino": "^6.7.0",
-		"serve-buffer": "^2.3.0"
+		"serve-buffer": "^2.3.0",
+		"speedometer": "^1.1.0"
 	},
 	"peerDependencies": {
 		"gtfs-via-postgres": "^2.4.2",

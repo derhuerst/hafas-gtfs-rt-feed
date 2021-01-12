@@ -1,6 +1,7 @@
 'use strict'
 
 const {cpus: osCpus} = require('os')
+const speedometer = require('speedometer')
 const movingAvg = require('live-moving-average')
 const pLimit = require('p-limit')
 const {
@@ -52,15 +53,27 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 	const matchTripWithGtfs = createMatchTrip(gtfsRtInfo, gtfsInfo)
 	const matchMovementWithGtfs = createMatchMovement(gtfsRtInfo, gtfsInfo)
 
-	let receivedItems = 0
-	let matchedItems = 0
-	let cancelledMatches = 0
+	const receivedItems = {total: 0, movement: 0, trip: 0}
+	const matchedItems = {total: 0, movement: 0, trip: 0}
+	const matchedItemsRate = speedometer(5) // 5s window
+	let matchedItemsPerSecond = 0
+	const cancelledMatches = {total: 0, movement: 0, trip: 0}
 	const avgWaitTime = movingAvg(100, 30) // past 100 items, pre-fill with 30ms
-	const avgMatchTime = movingAvg(100, 30) // past 100 items, pre-fill with 30ms
-	const seenTripIds = new Set()
-	const matchedTripIds = new Set()
-
-	const limit = pLimit(matchConcurrency)
+	const avgMatchTime = {
+		all: movingAvg(100, 30), // past 100 items, pre-fill with 30ms
+		movement: movingAvg(100, 30), // past 100 items, pre-fill with 30ms
+		trip: movingAvg(100, 30), // past 100 items, pre-fill with 30ms
+	}
+	const seenTripIds = {
+		all: new Set(),
+		movement: new Set(),
+		trip: new Set(),
+	}
+	const matchedTripIds = {
+		all: new Set(),
+		movement: new Set(),
+		trip: new Set(),
+	}
 
 	const natsStreaming = connectToNatsStreaming(natsClusterId, natsClientId, {
 		url: natsStreamingUrl,
@@ -73,13 +86,16 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 		.setManualAckMode(true)
 	}
 
+	const limit = pLimit(matchConcurrency)
 	const createMatch = (kind, timeout, tripId, _isMatched, _match) => {
 		const waitAndMatch = (msg) => {
 			let item = JSON.parse(msg.getData())
-			receivedItems++
+			receivedItems.total++
+			receivedItems[kind]++
 
 			const origTripId = tripId(tripId)
-			seenTripIds.add(origTripId)
+			seenTripIds.all.add(origTripId)
+			seenTripIds[kind].add(origTripId)
 
 			// Promises returned by p-limit are not cancelable yet, but we can
 			// hack around this here.
@@ -87,7 +103,8 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 			let cancelled = false
 			const cancelTimer = setTimeout(() => {
 				cancelled = true
-				cancelledMatches++
+				cancelledMatches.total++
+				cancelledMatches[kind]++
 			}, timeout)
 
 			const t0 = Date.now()
@@ -107,12 +124,16 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 					isMatched ? 'matched' : 'failed to match', kind,
 					'in', matchTime, 'after', waitTime, 'waiting',
 				].join(' '))
-				avgMatchTime.push(matchTime)
 				avgWaitTime.push(waitTime)
+				avgMatchTime.all.push(matchTime)
+				avgMatchTime[kind].push(matchTime)
 				if (isMatched) {
-					matchedItems++
-					matchedTripIds.add(origTripId)
+					matchedItems.total++
+					matchedItems[kind]++
+					matchedTripIds.all.add(origTripId)
+					matchedTripIds[kind].add(origTripId)
 				}
+				matchedItemsPerSecond = matchedItemsRate(isMatched ? 1 : 0)
 			}
 
 			limit(match)
@@ -157,14 +178,31 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 		logger.info({
 			receivedItems,
 			matchedItems,
+			matchedItemsPerSecond: matchedItemsPerSecond.toFixed(3),
 			cancelledMatches,
-			avgMatchTime: avgMatchTime.get(),
+			avgMatchTime: {
+				all: avgMatchTime.all.get(),
+				movement: avgMatchTime.movement.get(),
+				trip: avgMatchTime.trip.get(),
+			},
 			avgWaitTime: avgWaitTime.get(),
-			seenTripIds: seenTripIds.size,
-			matchedTripIds: matchedTripIds.size,
+			seenTripIds: {
+				all: seenTripIds.all.size,
+				movement: seenTripIds.movement.size,
+				trip: seenTripIds.trip.size,
+			},
+			matchedTripIds: {
+				all: matchedTripIds.all.size,
+				movement: matchedTripIds.movement.size,
+				trip: matchedTripIds.trip.size,
+			},
+
+			matchesRunning: limit.activeCount,
+			matchesQueued: limit.pendingCount,
 		})
 	}
 	const statsInterval = setInterval(reportStats, 5000)
+	setImmediate(reportStats, 0)
 
 	withSoftExit(() => {
 		reportStats()
