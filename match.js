@@ -13,6 +13,7 @@ const {parse, stringify} = require('ndjson')
 const {transform: parallelTransform} = require('parallel-stream')
 const createLogger = require('./lib/logger')
 const {POSITION, TRIP} = require('./lib/protocol')
+const withSoftExit = require('./lib/soft-exit')
 
 const logger = createLogger('match')
 
@@ -200,6 +201,10 @@ const runGtfsMatching = (gtfsRtInfo, gtfsInfo, opt = {}) => {
 			close().catch(onError)
 		},
 	)
+
+	withSoftExit(() => {
+		close().catch(onError)
+	})
 }
 
 module.exports = runGtfsMatching

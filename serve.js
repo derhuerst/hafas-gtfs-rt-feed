@@ -11,6 +11,7 @@ const {createServer} = require('http')
 const createLogger = require('./lib/logger')
 const createGtfsRtWriter = require('./lib/gtfs-rt-writer')
 const {POSITION, TRIP} = require('./lib/protocol')
+const withSoftExit = require('./lib/soft-exit')
 
 const logger = createLogger('serve')
 
@@ -88,7 +89,7 @@ const onRequest = (req, res) => {
 }
 
 const cors = createCors()
-createServer((req, res) => {
+const server = createServer((req, res) => {
 	cors(req, res, (err) => {
 		if (err) {
 			res.statusCode = err.statusCode || 500
@@ -98,4 +99,8 @@ createServer((req, res) => {
 		}
 	})
 })
-.listen(3000, onError)
+server.listen(3000, onError)
+
+withSoftExit(() => {
+	server.close()
+})

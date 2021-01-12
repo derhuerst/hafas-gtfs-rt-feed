@@ -3,6 +3,7 @@
 const createMonitor = require('hafas-monitor-trips')
 const createLogger = require('./lib/logger')
 const {POSITION, TRIP} = require('./lib/protocol')
+const withSoftExit = require('./lib/soft-exit')
 
 const logger = createLogger('monitor')
 
@@ -40,6 +41,11 @@ const runMonitor = (hafas, opt = {}) => {
 	})
 
 	monitor.on('stats', logger.info.bind(logger))
+
+	withSoftExit(() => {
+		logger.debug('closing trips monitor')
+		monitor.stop()
+	})
 }
 
 module.exports = runMonitor
