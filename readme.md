@@ -1,6 +1,6 @@
 # hafas-gtfs-rt-feed
 
-**Generate a [GTFS Realtime](https://developers.google.com/transit/gtfs-realtime/) feed by polling a [HAFAS endpoint](https://github.com/public-transport/hafas-client#background).**
+**Generate a [GTFS Realtime (GTFS-RT)](https://developers.google.com/transit/gtfs-realtime/) feed by polling a [HAFAS endpoint](https://github.com/public-transport/hafas-client#background).**
 
 [![npm version](https://img.shields.io/npm/v/hafas-gtfs-rt-feed.svg)](https://www.npmjs.com/package/hafas-gtfs-rt-feed)
 [![build status](https://img.shields.io/travis/derhuerst/hafas-gtfs-rt-feed.svg)](https://travis-ci.org/derhuerst/hafas-gtfs-rt-feed)
@@ -8,25 +8,163 @@
 [![support me via GitHub Sponsors](https://img.shields.io/badge/support%20me-donate-fa7664.svg)](https://github.com/sponsors/derhuerst)
 [![chat with me on Twitter](https://img.shields.io/badge/chat%20with%20me-on%20Twitter-1da1f2.svg)](https://twitter.com/derhuerst)
 
-`hafas-gtfs-rt-feed`
+`hafas-gtfs-rt-feed` consists of several components, connected to each other via the [NATS Streaming](https://docs.nats.io/nats-streaming-concepts/intro) channels:
 
-1. gets a [`hafas-client`](https://github.com/public-transport/hafas-client) instance passed in, and uses [`hafas-monitor-trips`](https://github.com/derhuerst/hafas-monitor-trips) to poll live data about all vehicles in the specified bounding box.
-2. uses [`match-gtfs-rt-to-gtfs`](https://github.com/derhuerst/match-gtfs-rt-to-gtfs) to match the HAFAS-ish data against static GTFS data imported in a database using [`gtfs-via-postgres`](https://github.com/derhuerst/gtfs-via-postgres).
-3. uses [`gtfs-rt-differential-to-full-dataset`](https://github.com/derhuerst/gtfs-rt-differential-to-full-dataset) to aggregate the data into a single [GTFS Realtime (GTFS-RT)](https://developers.google.com/transit/gtfs-realtime/) feed, and [`serve-buffer`](https://github.com/derhuerst/serve-buffer) to serve the feed from memory.
+1. `monitor-hafas`: Given a [`hafas-client` instance](https://github.com/public-transport/hafas-client), it uses [`hafas-monitor-trips`](https://github.com/derhuerst/hafas-monitor-trips) to poll live data about all vehicles in the configured geographic area.
+2. `match-with-gtfs`: Uses [`match-gtfs-rt-to-gtfs`](https://github.com/derhuerst/match-gtfs-rt-to-gtfs) to match this data against [static GTFS](https://developers.google.com/transit/gtfs) data imported into a database.
+3. `serve-as-gtfs-rt`: Uses [`gtfs-rt-differential-to-full-dataset`](https://github.com/derhuerst/gtfs-rt-differential-to-full-dataset) to aggregate the matched data into a single [GTFS-RT](https://developers.google.com/transit/gtfs-realtime/) feed, and serves the feed via HTTP.
 
+`monitor-hafas` sends data to `match-with-gtfs` via two NATS Streaming channels `trips` & `movements`; `match-with-gtfs` sends data to `serve-as-gtfs-rt` via two channels `matched-trips` & `matched-movements`.
 
-## Installing
-
-```shell
-npm install hafas-gtfs-rt-feed
+```
+                   GTFS data in a            clients
+HAFAS API          PostgreSQL DB                ^
+   ^ |                  ^ |                     | GTFS-RT
+   | |                  | |                     |
+   | v                  | v                     |
+monitor-hafas      match-with-gtfs        serve-as-gtfs-rt
+   ||                 ^^   ||                   ^  ^
+   ||                 ||   ||                   |  |
+   |+----> trips -----+|   |+--> matched-trips -+  |
+   +-----> movements --+   +---> matched-movements +
 ```
 
 
 ## Usage
 
-```shell
-todo
+Some preparations are necessary for `hafas-gtfs-rt-feed` to work. Let's get started!
+
+Run `npm init` inside a new directory to initialize an empty [npm](https://docs.npmjs.com/cli/v6/commands/npm)-based project.
+
+```sh
+mkdir deutsche-bahn-gtfs-rt-feed
+cd deutsche-bahn-gtfs-rt-feed
+npm init
 ```
+
+### set up NATS Streaming
+
+[Install and run the NATS Streaming Server](https://docs.nats.io/nats-streaming-server/run) as documented.
+
+*Note:* If you run Nats Streaming on a different host or port, pass a custom `NATS_URL` environment variable into all `hafas-gtfs-rt-feed` components.
+
+### set up PostgreSQL
+
+Make sure you have a reasonably recent version of [PostgreSQL](https://www.postgresql.org) installed and running. There are guides for many operating systems and environments available on the internet.
+
+*Note:* If you run PostgreSQL on a different host or port, pass custom [`PG*` environment variables](https://www.postgresql.org/docs/13/libpq-envars.html) into the `match.js` component.
+
+### install `hafas-gtfs-rt-feed`
+
+Use the [npm CLI](https://docs.npmjs.com/getting-started/configuring-your-local-environment):
+
+```shell
+npm install hafas-gtfs-rt-feed
+# added 153 packages in 12s
+```
+
+### set up a `hafas-client` instance
+
+`hafas-gtfs-rt-feed` is agnostic to the HAFAS API it pulls data from: To fetch data, `monitor-hafas` just uses the `hafas-client` you passed in, which you must point towards one out of many HAFAS API endpoints.
+
+Set up [`hafas-client` as documented](https://github.com/public-transport/hafas-client/blob/ba27f549520082e576560d235c34f397b0f6e06a/readme.md#usage). A very basic example using the [Deutsche Bahn (DB) endpoint](https://github.com/public-transport/hafas-client/blob/5/p/db/readme.md):
+
+```js
+// deutsche-bahn-hafas.js
+const createClient = require('hafas-client')
+const dbProfile = require('hafas-client/p/db')
+
+// create hafas-client configured to use Deutsche Bahn's HAFAS API
+const client = createClient(dbProfile, 'my-awesome-program')
+
+module.exports = client
+```
+
+### build the GTFS matching database
+
+`match-with-gtfs` needs a pre-populated matching database to run; It uses [`gtfs-via-postgres`](https://npmjs.com/package/gtfs-via-postgres) and [`match-gtfs-rt-to-gtfs`](https://npmjs.com/package/match-gtfs-rt-to-gtfs) underneath.
+
+First, we're going to use [`gtfs-via-postgres`](https://npmjs.com/package/gtfs-via-postgres)'s `gtfs-to-sql` command-line tool to import our GTFS data into PostgreSQL.
+
+*Note:* Make sure you have an up-to-date [GTFS Static](https://developers.google.com/transit/gtfs) dataset, unzipped into individual `.txt` files.
+
+```sh
+# create a PostgreSQL database `gtfs`
+psql -c 'create database gtfs'
+# configure all subsequent commands to use it
+export PGDATABASE=gtfs
+# import all .txt files
+node_modules/.bin/gtfs-to-sql -d -u path/to/gtfs/files/*.txt
+```
+
+You database `gtfs` should contain *basic* GTFS data now.
+
+---
+
+[`match-gtfs-rt-to-gtfs`](https://npmjs.com/package/match-gtfs-rt-to-gtfs) works by matching HAFAS stops & lines against GTFS stops & lines, using their IDs and *their names*. Usually, HAFAS & GTFS stop/line names don't have the same format, so they need to be normalized.
+
+You'll have to implement this normalization logic. A simplified (but very naive) normalization logic *may* look like this:
+
+```js
+// hafas-info.js
+module.exports = {
+	endpointName: 'some-hafas-api',
+	normalizeStopName: name => name.toLowerCase().replace(/\s+/g, ' ').trim(),
+	normalizeLineName: name => name.toLowerCase().replace(/\s+/g, ' ').trim(),
+}
+```
+
+```js
+// gtfs-info.js
+module.exports = {
+	endpointName: 'some-gtfs-feed',
+	normalizeStopName: name => name.toLowerCase().replace(/\s+St\.$/, ''),
+	normalizeLineName: name => name.toLowerCase(),
+}
+```
+
+`match-gtfs-rt-to-gtfs` needs some special matching indices in the database to work efficiently. Now that we have implemented some normalization logic, we're going to pass it to `match-gtfs-rt-to-gtfs`'s `build-gtfs-match-index` command-line tool:
+
+```sh
+# add matching indices to the `gtfs` database
+node_modules/.bin/build-gtfs-match-index path/to/hafas-info.js path/to/gtfs-info.js
+```
+
+*Note:* `hafas-gtfs-rt-feed` is data- & region-agnostic, so it depends on your HAFAS-endpoint-specific name normalization logic to match as many HAFAS trips/vehicles as possible against the GTFS data. The ratio matched items would ideally be 100%, because GTFS-RT feeds are intended to be consumed *along* a GTFS dataset with *matching IDs*.
+
+### run all components
+
+Now that we've set everything up, let's run all `hafas-gtfs-rt-feed` components to check if they are working!
+
+All three components need to be run in parallel, so just open three terminals to run them. They will start logging [pino-formatted](https://getpino.io/#/?id=usage) log messages.
+
+```shell
+# specify the bounding box to be monitored (required)
+export BBOX='{"north": 1.1, "west": 22.2, "south": 3.3, "east": 33.3}'
+# start monitor-hafas
+node_modules/.bin/monitor-hafas deutsche-bahn-hafas.js
+# todo: sample logs
+```
+
+```shell
+node_modules/.bin/match-with-gtfs
+# todo: sample logs
+```
+
+```shell
+node_modules/.bin/serve-as-gtfs-rt
+```
+
+### inspecting the feed
+
+Your GTFS-RT feed should now be served at `http://localhost:3000/`, and within a few moments, it should contain data! 👏
+
+You can verify this using many available GTFS-RT tools; Here are two of them to quickly inspect the feed:
+
+- [`print-gtfs-rt-cli`](https://github.com/derhuerst/print-gtfs-rt-cli) is a command-line tool, use it with `curl`: `curl 'http://localhost:3000/' -s | print-gtfs-rt`.
+- [`gtfs-rt-inspector`](https://public-transport.github.io/gtfs-rt-inspector/?feedUrl=http%3A%2F%2Flocalhost%3A3000%2F%0A) is a web app that can inspect any [CORS](https://enable-cors.org)-enabled GTFS-RT feed (that includes yours).
+
+After `monitor.js` has fetched some data from HAFAS, and after `match.js` has matched it against the GTFS (or failed or timed out doing so), you should see [`TripUpdate`s](https://developers.google.com/transit/gtfs-realtime/reference/#message-tripupdate) & [`VehiclePosition`s](https://developers.google.com/transit/gtfs-realtime/reference/#message-vehicleposition).
 
 
 ## Related
