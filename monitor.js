@@ -1,75 +1,43 @@
+#!/usr/bin/env node
 'use strict'
 
-const createMonitor = require('hafas-monitor-trips')
-const {connect: connectToNatsStreaming} = require('node-nats-streaming')
-const createLogger = require('./lib/logger')
-const withSoftExit = require('./lib/soft-exit')
+const mri = require('mri')
+const pkg = require('./package.json')
 
-const MAJOR_VERSION = require('./lib/major-version')
+const argv = mri(process.argv.slice(2), {
+	boolean: [
+		'help', 'h',
+		'version', 'v',
+	]
+})
 
-const logger = createLogger('monitor')
-
-const runMonitor = (hafas, opt = {}) => {
-	const clientId = Math.random().toString(16).slice(2, 6)
-	const {
-		bbox,
-		fetchTripsInterval,
-		natsStreamingUrl,
-		natsClusterId,
-		natsClientId,
-		natsClientName,
-		maxInflightPublishes,
-	} = {
-		bbox: process.env.BBOX
-			? JSON.parse(process.env.BBOX)
-			: 'null',
-		fetchTripsInterval: process.env.FETCH_TRIPS_INTERVAL
-			? parseInt(process.env.FETCH_TRIPS_INTERVAL)
-			: 60 * 1000, // 60s
-		natsStreamingUrl: process.env.NATS_STREAMING_URL || 'nats://localhost:4222',
-		natsClusterId: process.env.NATS_CLUSTER_ID || 'test-cluster',
-		natsClientId: process.env.NATS_CLIENT_ID || `v${MAJOR_VERSION}-monitor-${clientId}`,
-		natsClientName: process.env.NATS_CLIENT_NAME || `v${MAJOR_VERSION}-monitor`,
-		maxInflightPublishes: 300,
-		...opt,
-	}
-
-	const monitor = createMonitor(hafas, bbox, {
-		fetchTripsInterval,
-	})
-	monitor.on('error', (err) => {
-		logger.error(err)
-		if (!['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN'].includes(err.code)) process.exit(1)
-	})
-	monitor.on('hafas-error', logger.warn.bind(logger))
-
-	const natsStreaming = connectToNatsStreaming(natsClusterId, natsClientId, {
-		url: natsStreamingUrl,
-		name: natsClientName,
-		maxPubAcksInflight: maxInflightPublishes,
-	})
-
-	const publish = (channel, item) => {
-		if (natsStreaming.isClosed()) return; // todo: why?
-		natsStreaming.publish(channel, JSON.stringify(item), (err) => {
-			if (!err) return;
-			logger.error(err)
-		})
-	}
-	monitor.on('position', (loc, movement) => {
-		publish('movements', movement)
-	})
-	monitor.on('trip', (trip) => {
-		publish('trips', trip)
-	})
-
-	monitor.on('stats', logger.info.bind(logger))
-
-	withSoftExit(() => {
-		logger.debug('closing trips monitor & nats-streaming client')
-		natsStreaming.close()
-		monitor.stop()
-	})
+if (argv.help || argv.h) {
+	process.stdout.write(`
+Usage:
+    monitor-hafas <path-to-hafas-client> [bbox]
+Examples:
+    monitor-hafas my-hafas-client.js '{"north": 1.1, "west": 22.2, "south": 3.3, "east": 33.3}'
+\n`)
+	process.exit(0)
 }
 
-module.exports = runMonitor
+if (argv.version || argv.v) {
+	process.stdout.write(`${pkg.name} v${pkg.version}\n`)
+	process.exit(0)
+}
+
+const {resolve: pathResolve} = require('path')
+const runMonitor = require('./lib/monitor')
+
+const showError = (err) => {
+	console.error(err)
+	process.exit(1)
+}
+
+const pathToHafasClient = argv._[0]
+if (!pathToHafasClient) showError('Missing path-to-hafas-client argument.')
+const hafasClient = require(pathResolve(process.cwd(), pathToHafasClient))
+
+runMonitor(hafasClient, {
+	bbox: argv._[1] || JSON.parse(process.env.BBOX || 'null'),
+})

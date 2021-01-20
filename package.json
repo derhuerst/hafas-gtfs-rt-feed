@@ -3,6 +3,9 @@
 	"description": "Generate a GTFS Realtime feed by monitoring a HAFAS endpoint.",
 	"version": "3.4.0",
 	"main": "index.js",
+	"bin": {
+		"monitor-hafas": "monitor.js",
+	},
 	"files": [
 		"monitor.js",
 		"match.js",
@@ -56,6 +59,7 @@
 		"lodash": "^4.17.20",
 		"luxon": "^1.25.0",
 		"match-gtfs-rt-to-gtfs": "^3.4.0",
+		"mri": "^1.1.6",
 		"node-nats-streaming": "^0.3.2",
 		"p-limit": "^3.0.2",
 		"pino": "^6.7.0",
