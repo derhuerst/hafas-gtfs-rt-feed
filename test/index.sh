@@ -24,7 +24,7 @@ NODE_ENV=production ../node_modules/.bin/gtfs-to-sql \
 	-d | psql -b
 
 NODE_ENV=production ../build-gtfs-match-index \
-	gtfs-rt-info.js gtfs-info.js \
+	hafas-info.js gtfs-info.js \
 	| psql -b
 
 export MATCH_TRIP_TIMEOUT=300000 # 5m
@@ -34,7 +34,7 @@ export MATCH_MOVEMENT_TIMEOUT=300000 # 5m
 # https://stackoverflow.com/questions/360201/how-do-i-kill-background-processes-jobs-when-my-shell-script-exits/2173421#2173421
 trap 'exit_code=$?; kill -- $(jobs -p); exit $exit_code' SIGINT SIGTERM EXIT
 
-cat unmatched.ndjson.gz | gunzip | node match.js >matched.ndjson
+cat unmatched.ndjson.gz | gunzip | ../match.js hafas-info.js gtfs-info.js >matched.ndjson
 node ../serve.js <matched.ndjson &
 sleep 5 # wait for serve.js to ingest the data
 

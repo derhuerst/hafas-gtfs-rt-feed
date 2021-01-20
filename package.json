@@ -5,6 +5,7 @@
 	"main": "index.js",
 	"bin": {
 		"monitor-hafas": "monitor.js",
+		"match-with-gtfs": "match.js",
 	},
 	"files": [
 		"monitor.js",

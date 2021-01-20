@@ -5,10 +5,10 @@ const {
 	normalizeLineName,
 } = require('./normalize')
 
-const gtfsRtInfo = {
+const hafasInfo = {
 	endpointName: 'vbb-hafas',
 	normalizeStopName,
 	normalizeLineName,
 }
 
-module.exports = gtfsRtInfo
+module.exports = hafasInfo
