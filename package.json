@@ -7,11 +7,14 @@
 		"monitor-hafas": "monitor.js",
 		"match-with-gtfs": "match.js",
 		"serve-as-gtfs-rt": "serve.js",
+		"gtfs-to-sql": "gtfs-to-sql",
+		"build-gtfs-match-index": "build-gtfs-match-index"
 	},
 	"files": [
 		"monitor.js",
 		"match.js",
 		"serve.js",
+		"gtfs-to-sql",
 		"build-gtfs-match-index",
 		"lib",
 		"LICENSE",
@@ -56,6 +59,7 @@
 		"etag": "^1.8.1",
 		"gtfs-rt-bindings": "^3.1.0",
 		"gtfs-rt-differential-to-full-dataset": "^1.1.0",
+		"gtfs-via-postgres": "^2.4.2",
 		"hafas-monitor-trips": "^4.0.0",
 		"live-moving-average": "^1.1.0",
 		"lodash": "^4.17.20",
@@ -69,7 +73,6 @@
 		"speedometer": "^1.1.0"
 	},
 	"peerDependencies": {
-		"gtfs-via-postgres": "^2.4.2",
 		"hafas-client": "^5.13.0"
 	},
 	"devDependencies": {

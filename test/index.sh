@@ -10,7 +10,7 @@ wget -q -r --no-parent --no-directories -P gtfs -N 'https://vbb-gtfs.jannisr.de/
 
 env | grep '^PG' || true
 
-NODE_ENV=production ../node_modules/.bin/gtfs-to-sql \
+NODE_ENV=production ../gtfs-to-sql \
 	gtfs/agency.csv \
 	gtfs/calendar.csv \
 	gtfs/calendar_dates.csv \
