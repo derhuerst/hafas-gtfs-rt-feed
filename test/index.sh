@@ -35,7 +35,7 @@ export MATCH_MOVEMENT_TIMEOUT=300000 # 5m
 trap 'exit_code=$?; kill -- $(jobs -p); exit $exit_code' SIGINT SIGTERM EXIT
 
 cat unmatched.ndjson.gz | gunzip | ../match.js hafas-info.js gtfs-info.js >matched.ndjson
-node ../serve.js <matched.ndjson &
+../serve.js <matched.ndjson &
 sleep 5 # wait for serve.js to ingest the data
 
 curl 'http://localhost:3000/' -s \

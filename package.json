@@ -6,6 +6,7 @@
 	"bin": {
 		"monitor-hafas": "monitor.js",
 		"match-with-gtfs": "match.js",
+		"serve-as-gtfs-rt": "serve.js",
 	},
 	"files": [
 		"monitor.js",
