@@ -76,12 +76,14 @@ natsStreaming.once('connect', () => {
 	movSub.on('message', (msg) => {
 		const movement = JSON.parse(msg.getData())
 		differentialToFull.write(formatMovement(movement))
+		msg.ack()
 	})
 
 	const tripsSub = natsStreaming.subscribe('matched-trips', subOpts())
 	tripsSub.on('message', (msg) => {
 		const trip = JSON.parse(msg.getData())
 		differentialToFull.write(formatTrip(trip))
+		msg.ack()
 	})
 
 	// todo: handle errors
