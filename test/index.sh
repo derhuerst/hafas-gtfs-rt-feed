@@ -63,7 +63,9 @@ until
 do
 	sleep 10
 done
+
 sleep 5
+nats-streaming-stats
 
 ./expect-fully-read-sub "$match_client_id" movements
 ./expect-fully-read-sub "$match_client_id" trips

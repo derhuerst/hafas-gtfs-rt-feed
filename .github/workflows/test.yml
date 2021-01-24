@@ -1,6 +1,10 @@
 name: test
 
-on: [push, pull_request]
+on: [
+  push,
+  # Too expensive with ~20m build times.
+  # pull_request
+]
 
 jobs:
   test:
@@ -31,6 +35,10 @@ jobs:
       uses: supercharge/redis-github-action@1.1.0
       # with:
       #   redis-version: ${{ matrix.redis-version }}
+
+    - name: start NATS Streaming
+      run: |
+        docker run -d -p 4222:4222 -p 8222:8222 nats-streaming
 
     - name: npm test
       run : npm test

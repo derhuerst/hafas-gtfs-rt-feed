@@ -7,7 +7,7 @@ set -o pipefail
 client_id="$1"
 channel_name="$2"
 
-channels="$(curl 'http://localhost:8222/streaming/channelsz?subs=1' -s | jq -r -c)"
+channels="$(curl 'http://localhost:8222/streaming/channelsz?subs=1' -s | jq -r -c .)"
 
 node -e "$(cat <<-EOF
 const {strictEqual: eql} = require('assert')

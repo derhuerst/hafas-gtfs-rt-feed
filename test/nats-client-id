@@ -6,7 +6,7 @@ set -o pipefail
 
 client_name="$1"
 
-clients="$(curl 'http://localhost:8222/streaming/clientsz' -s | jq -r -c)"
+clients="$(curl 'http://localhost:8222/streaming/clientsz' -s | jq -r -c .)"
 
 node -e "$(cat <<-EOF
 const name = process.argv[1]
