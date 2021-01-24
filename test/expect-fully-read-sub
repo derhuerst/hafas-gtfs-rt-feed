@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+# set -x
+
+client_id="$1"
+channel_name="$2"
+
+channels="$(curl 'http://localhost:8222/streaming/channelsz?subs=1' -s | jq -r -c)"
+
+node -e "$(cat <<-EOF
+const {strictEqual: eql} = require('assert')
+
+const clientId = process.argv[1]
+const channelName = process.argv[2]
+const _ = JSON.parse(process.argv[3])
+
+const fail = (msg) => {
+	console.error(msg)
+	process.exit(1)
+}
+
+const channel = _.channels.find(c => c.name === channelName)
+if (!channel) fail(\`failed to find the NATS channel \${channelName}\`)
+
+const sub = (channel.subscriptions || []).find(s => s.client_id === clientId)
+if (!sub) fail(\`failed to find \${clientId}\'s subscription to \${channelName}\`)
+
+eql(sub.pending_count, 0, 'sub.pending_count')
+eql(sub.is_stalled, false, 'sub.is_stalled')
+eql(sub.last_sent, channel.last_seq, 'sub.last_sent !== channel.last_seq')
+
+console.log(\`\${clientId}\'s subscription to \${channelName} is fully read\`)
+EOF
+)" "$client_id" "$channel_name" "$channels"

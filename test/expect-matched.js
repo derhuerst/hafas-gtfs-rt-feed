@@ -21,6 +21,7 @@ const onRow = (ety) => {
 	} catch (err) {
 		err.etyNr = nrOfEntities
 		err.ety = ety
+		console.error(err)
 		throw err
 	}
 }
@@ -32,9 +33,9 @@ const onEnd = () => {
 		matchedVehiclePositions,
 	}))
 	process.exit((
-		nrOfEntities === 1359
-		&& matchedTripUpdates > 630
-		&& matchedVehiclePositions > 630
+		nrOfEntities >= 670 && nrOfEntities <= 700
+		&& matchedTripUpdates >= 280 && matchedTripUpdates <= 300
+		&& matchedVehiclePositions > 370 && matchedVehiclePositions <= 400
 	) ? 0 : 10)
 }
 

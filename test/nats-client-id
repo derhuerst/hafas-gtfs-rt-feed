@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+# set -x
+
+client_name="$1"
+
+clients="$(curl 'http://localhost:8222/streaming/clientsz' -s | jq -r -c)"
+
+node -e "$(cat <<-EOF
+const name = process.argv[1]
+const _ = JSON.parse(process.argv[2])
+
+const idRegExp = \`^v\\\\d+-\${name}-[0-9a-f]+$\`
+const client = _.clients.find(c => new RegExp(idRegExp, 'g').test(c.id))
+if (client) process.stdout.write(client.id)
+else {
+	console.error(\`failed to find the \${name} NATS client\`)
+	process.exit(1)
+}
+EOF
+)" "$client_name" "$clients"
