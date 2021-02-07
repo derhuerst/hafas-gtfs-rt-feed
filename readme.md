@@ -3,7 +3,7 @@
 **Generate a [GTFS Realtime (GTFS-RT)](https://developers.google.com/transit/gtfs-realtime/) feed by polling a [HAFAS endpoint](https://github.com/public-transport/hafas-client#background).**
 
 [![npm version](https://img.shields.io/npm/v/hafas-gtfs-rt-feed.svg)](https://www.npmjs.com/package/hafas-gtfs-rt-feed)
-[![build status](https://img.shields.io/travis/derhuerst/hafas-gtfs-rt-feed.svg)](https://travis-ci.org/derhuerst/hafas-gtfs-rt-feed)
+[![build status](https://img.shields.io/github/workflow/status/derhuerst/hafas-gtfs-rt-feed/test/master)](https://github.com/derhuerst/hafas-gtfs-rt-feed/actions)
 [![Prosperity/Apache license](https://img.shields.io/static/v1?label=license&message=Prosperity%2FApache&color=0997E8)](#license)
 [![support me via GitHub Sponsors](https://img.shields.io/badge/support%20me-donate-fa7664.svg)](https://github.com/sponsors/derhuerst)
 [![chat with me on Twitter](https://img.shields.io/badge/chat%20with%20me-on%20Twitter-1da1f2.svg)](https://twitter.com/derhuerst)
@@ -162,7 +162,7 @@ Your GTFS-RT feed should now be served at `http://localhost:3000/`, and within a
 You can verify this using many available GTFS-RT tools; Here are two of them to quickly inspect the feed:
 
 - [`print-gtfs-rt-cli`](https://github.com/derhuerst/print-gtfs-rt-cli) is a command-line tool, use it with `curl`: `curl 'http://localhost:3000/' -s | print-gtfs-rt`.
-- [`gtfs-rt-inspector`](https://public-transport.github.io/gtfs-rt-inspector/?feedUrl=http%3A%2F%2Flocalhost%3A3000%2F%0A) is a web app that can inspect any [CORS](https://enable-cors.org)-enabled GTFS-RT feed (that includes yours).
+- [`gtfs-rt-inspector`](https://public-transport.github.io/gtfs-rt-inspector/?feedUrl=http%3A%2F%2Flocalhost%3A3000%2F%0A) is a web app that can inspect any [CORS](https://enable-cors.org)-enabled GTFS-RT feed; Paste `http://localhost:3000/` into the url field to inspect yours.
 
 After `monitor.js` has fetched some data from HAFAS, and after `match.js` has matched it against the GTFS (or failed or timed out doing so), you should see [`TripUpdate`s](https://developers.google.com/transit/gtfs-realtime/reference/#message-tripupdate) & [`VehiclePosition`s](https://developers.google.com/transit/gtfs-realtime/reference/#message-vehicleposition).
 
