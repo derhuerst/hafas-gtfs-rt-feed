@@ -8,6 +8,9 @@
 [![support me via GitHub Sponsors](https://img.shields.io/badge/support%20me-donate-fa7664.svg)](https://github.com/sponsors/derhuerst)
 [![chat with me on Twitter](https://img.shields.io/badge/chat%20with%20me-on%20Twitter-1da1f2.svg)](https://twitter.com/derhuerst)
 
+
+## Architecture
+
 `hafas-gtfs-rt-feed` consists of several components, connected to each other via the [NATS Streaming](https://docs.nats.io/nats-streaming-concepts/intro) channels:
 
 1. `monitor-hafas`: Given a [`hafas-client` instance](https://github.com/public-transport/hafas-client), it uses [`hafas-monitor-trips`](https://github.com/derhuerst/hafas-monitor-trips) to poll live data about all vehicles in the configured geographic area.
