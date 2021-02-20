@@ -139,7 +139,9 @@ const server = createServer((req, res) => {
 		}
 	})
 })
-server.listen(3000, onError)
+
+const port = parseInt(process.env.PORT || 3000)
+server.listen(port, onError)
 
 withSoftExit(() => {
 	server.close()
