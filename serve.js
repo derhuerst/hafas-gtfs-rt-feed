@@ -60,6 +60,8 @@ const natsStreamingUrl = process.env.NATS_STREAMING_URL || 'nats://localhost:422
 const natsClusterId = process.env.NATS_CLUSTER_ID || 'test-cluster'
 const natsClientId = process.env.NATS_CLIENT_ID || `v${MAJOR_VERSION}-serve-${clientId}`
 const natsClientName = process.env.NATS_CLIENT_NAME || `v${MAJOR_VERSION}-serve`
+const matchedMovementsChannel = process.env.MATCHED_MOVEMENTS_CHANNEL || 'matched-movements'
+const matchedTripsChannel = process.env.MATCHED_TRIPS_CHANNEL || 'matched-trips'
 
 const natsStreaming = connectToNatsStreaming(natsClusterId, natsClientId, {
 	url: natsStreamingUrl,
@@ -72,14 +74,14 @@ const subOpts = () => {
 }
 
 natsStreaming.once('connect', () => {
-	const movSub = natsStreaming.subscribe('matched-movements', subOpts())
+	const movSub = natsStreaming.subscribe(matchedMovementsChannel, subOpts())
 	movSub.on('message', (msg) => {
 		const movement = JSON.parse(msg.getData())
 		differentialToFull.write(formatMovement(movement))
 		msg.ack()
 	})
 
-	const tripsSub = natsStreaming.subscribe('matched-trips', subOpts())
+	const tripsSub = natsStreaming.subscribe(matchedTripsChannel, subOpts())
 	tripsSub.on('message', (msg) => {
 		const trip = JSON.parse(msg.getData())
 		differentialToFull.write(formatTrip(trip))
