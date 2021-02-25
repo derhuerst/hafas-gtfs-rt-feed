@@ -60,7 +60,7 @@
 		"gtfs-rt-bindings": "^3.1.0",
 		"gtfs-rt-differential-to-full-dataset": "^1.1.0",
 		"gtfs-via-postgres": "^2.4.2",
-		"hafas-monitor-trips": "^4.0.0",
+		"hafas-monitor-trips": "^4.1.0",
 		"live-moving-average": "^1.1.0",
 		"lodash": "^4.17.20",
 		"luxon": "^1.25.0",
