@@ -64,7 +64,7 @@
 		"live-moving-average": "^1.1.0",
 		"lodash": "^4.17.20",
 		"luxon": "^1.25.0",
-		"match-gtfs-rt-to-gtfs": "^3.6.0",
+		"match-gtfs-rt-to-gtfs": "^3.7.3",
 		"mri": "^1.1.6",
 		"node-nats-streaming": "^0.3.2",
 		"p-limit": "^3.0.2",
