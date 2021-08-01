@@ -81,7 +81,7 @@
 		"nats-streaming-cli": "^1.0.2",
 		"ndjson": "^2.0.0",
 		"print-gtfs-rt-cli": "^1.2.0",
-		"sample-gtfs-feed": "^0.7.0",
+		"sample-gtfs-feed": "^0.10.3",
 		"slugg": "^1.2.1",
 		"tokenize-vbb-station-name": "^1.1.0"
 	},
