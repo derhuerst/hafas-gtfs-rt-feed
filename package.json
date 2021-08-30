@@ -1,7 +1,7 @@
 {
 	"name": "hafas-gtfs-rt-feed",
 	"description": "Generate a GTFS Realtime feed by monitoring a HAFAS endpoint.",
-	"version": "4.2.0",
+	"version": "4.3.0",
 	"main": "index.js",
 	"bin": {
 		"monitor-hafas": "monitor.js",
@@ -67,6 +67,7 @@
 		"match-gtfs-rt-to-gtfs": "^3.7.3",
 		"mri": "^1.1.6",
 		"node-nats-streaming": "^0.3.2",
+		"normalize-vbb-station-name-for-search": "^1.0.0",
 		"p-limit": "^3.0.2",
 		"pino": "^6.7.0",
 		"serve-buffer": "^2.3.0",
@@ -82,8 +83,7 @@
 		"ndjson": "^2.0.0",
 		"print-gtfs-rt-cli": "^1.2.0",
 		"sample-gtfs-feed": "^0.10.3",
-		"slugg": "^1.2.1",
-		"tokenize-vbb-station-name": "^1.1.0"
+		"slugg": "^1.2.1"
 	},
 	"scripts": {
 		"lint": "eslint .",
