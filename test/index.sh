@@ -5,11 +5,13 @@ set -o pipefail
 
 cd "$(dirname $0)"
 
+set -x
+
 wget -q -r --no-parent --no-directories -P gtfs -N 'https://vbb-gtfs.jannisr.de/latest/'
 
 env | grep '^PG' || true
 
-NODE_ENV=production ../gtfs-to-sql \
+NODE_ENV=production ../gtfs-to-sql --trips-without-shape-id -d -- \
 	gtfs/agency.csv \
 	gtfs/calendar.csv \
 	gtfs/calendar_dates.csv \
@@ -20,7 +22,7 @@ NODE_ENV=production ../gtfs-to-sql \
 	gtfs/stops.csv \
 	gtfs/transfers.csv \
 	gtfs/trips.csv \
-	-d | psql -b
+	| psql -b
 
 NODE_ENV=production ../build-gtfs-match-index \
 	hafas-info.js gtfs-info.js \
