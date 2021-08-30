@@ -50,20 +50,20 @@
 		}
 	],
 	"engines": {
-		"node": ">=12"
+		"node": ">=14"
 	},
 	"dependencies": {
 		"@derhuerst/round-robin-scheduler": "^1.0.4",
 		"cors": "^2.8.5",
 		"debug": "^4.1.1",
 		"etag": "^1.8.1",
-		"gtfs-rt-bindings": "^3.1.0",
-		"gtfs-rt-differential-to-full-dataset": "^1.1.0",
+		"gtfs-rt-bindings": "^4.0.1",
+		"gtfs-rt-differential-to-full-dataset": "^2.0.1",
 		"gtfs-via-postgres": "^2.4.2",
 		"hafas-monitor-trips": "^4.1.0",
 		"live-moving-average": "^1.1.0",
 		"lodash": "^4.17.20",
-		"luxon": "^1.25.0",
+		"luxon": "^2.0.2",
 		"match-gtfs-rt-to-gtfs": "^3.7.3",
 		"mri": "^1.1.6",
 		"node-nats-streaming": "^0.3.2",
@@ -81,7 +81,7 @@
 		"hafas-client": "*",
 		"nats-streaming-cli": "^1.0.2",
 		"ndjson": "^2.0.0",
-		"print-gtfs-rt-cli": "^1.2.0",
+		"print-gtfs-rt-cli": "^2.0.0",
 		"sample-gtfs-feed": "^0.10.3",
 		"slugg": "^1.2.1"
 	},
