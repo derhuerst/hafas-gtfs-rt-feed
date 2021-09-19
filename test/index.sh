@@ -7,7 +7,7 @@ cd "$(dirname $0)"
 
 set -x
 
-wget -q -r --no-parent --no-directories -P gtfs -N 'https://vbb-gtfs.jannisr.de/latest/'
+wget -q -r --no-parent --no-directories -P gtfs -N 'https://vbb-gtfs.jannisr.de/2020-12-28/'
 
 env | grep '^PG' || true
 
