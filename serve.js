@@ -28,6 +28,7 @@ if (argv.version || argv.v) {
 
 const differentialToFullDataset = require('gtfs-rt-differential-to-full-dataset')
 const {connect: connectToNatsStreaming} = require('node-nats-streaming')
+const throttle = require('lodash/throttle')
 const computeEtag = require('etag')
 const {gzipSync, brotliCompressSync} = require('zlib')
 const serveBuffer = require('serve-buffer')
@@ -94,12 +95,11 @@ natsStreaming.once('connect', () => {
 let feed = Buffer.alloc(0)
 let timeModified = new Date()
 let etag = computeEtag(feed)
-// todo: debounce this
-differentialToFull.on('change', () => {
+differentialToFull.on('change', throttle(() => {
 	feed = differentialToFull.asFeedMessage()
 	timeModified = new Date()
 	etag = computeEtag(feed)
-})
+}, 100))
 
 // note: this is assumes that `buf` is not mutated
 const compression = compress => {
