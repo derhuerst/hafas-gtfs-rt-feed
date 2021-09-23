@@ -71,7 +71,7 @@
 		"p-limit": "^3.0.2",
 		"pino": "^6.7.0",
 		"serve-buffer": "^2.3.0",
-		"speedometer": "^1.1.0"
+		"ttl-buffer": "^1.0.0"
 	},
 	"peerDependencies": {
 		"hafas-client": "^5.13.0"
