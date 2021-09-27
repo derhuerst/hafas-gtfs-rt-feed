@@ -49,7 +49,7 @@ npm init
 
 [Install and run the NATS Streaming Server](https://docs.nats.io/nats-streaming-server/run) as documented.
 
-*Note:* If you run Nats Streaming on a different host or port, pass a custom `NATS_URL` environment variable into all `hafas-gtfs-rt-feed` components.
+*Note:* If you run Nats Streaming on a different host or port, pass a custom `NATS_STREAMING_URL` environment variable into all `hafas-gtfs-rt-feed` components.
 
 ### set up PostgreSQL
 
