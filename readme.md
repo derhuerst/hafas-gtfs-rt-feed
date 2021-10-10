@@ -169,6 +169,49 @@ You can verify this using many available GTFS-RT tools; Here are two of them to 
 
 After `monitor.js` has fetched some data from HAFAS, and after `match.js` has matched it against the GTFS (or failed or timed out doing so), you should see [`TripUpdate`s](https://developers.google.com/transit/gtfs-realtime/reference/#message-tripupdate) & [`VehiclePosition`s](https://developers.google.com/transit/gtfs-realtime/reference/#message-vehicleposition).
 
+### metrics
+
+All three components (`monitor-hafas`, `match-with-gtfs`, `serve-as-gtfs-rt`) expose [Prometheus](https://prometheus.io)-compatible metrics via HTTP. You can fetch and process them using e.g. Prometheus, [VictoriaMetrics](https://victoriametrics.com) or the [Grafana Agent](https://grafana.com/docs/grafana-cloud/agent/).
+
+As an example, we're going to inspect `monitor-hafas`'s metrics. Enable them by running it with an `METRICS_SERVER_PORT=9323` environment variable and query its metrics via HTTP:
+
+```shell
+curl 'http://localhost:9323/metrics'
+```
+
+```
+# HELP nats_streaming_sent_total nr. of messages published to NATS streaming
+# TYPE nats_streaming_sent_total counter
+nats_streaming_sent_total{channel="movements"} 1673
+nats_streaming_sent_total{channel="trips"} 1162
+
+# HELP hafas_reqs_total nr. of HAFAS requests
+# TYPE hafas_reqs_total counter
+hafas_reqs_total{call="radar"} 90
+hafas_reqs_total{call="trip"} 1165
+
+# HELP hafas_response_time_seconds HAFAS response time
+# TYPE hafas_response_time_seconds summary
+hafas_response_time_seconds{quantile="0.05",call="radar"} 1.0396666666666665
+hafas_response_time_seconds{quantile="0.5",call="radar"} 3.8535000000000004
+hafas_response_time_seconds{quantile="0.95",call="radar"} 6.833
+hafas_response_time_seconds_sum{call="radar"} 338.22600000000006
+hafas_response_time_seconds_count{call="radar"} 90
+hafas_response_time_seconds{quantile="0.05",call="trip"} 2.4385
+hafas_response_time_seconds{quantile="0.5",call="trip"} 28.380077380952383
+hafas_response_time_seconds{quantile="0.95",call="trip"} 54.51257142857143
+hafas_response_time_seconds_sum{call="trip"} 33225.48200000005
+hafas_response_time_seconds_count{call="trip"} 1165
+
+# HELP monitored_tiles_total nr. of tiles being monitored
+# TYPE monitored_tiles_total gauge
+monitored_tiles_total 30
+
+# HELP monitored_trips_total nr. of trips being monitored
+# TYPE monitored_trips_total gauge
+monitored_trips_total 588
+```
+
 
 ## Related
 
