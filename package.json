@@ -70,6 +70,7 @@
 		"normalize-vbb-station-name-for-search": "^1.0.0",
 		"p-limit": "^3.0.2",
 		"pino": "^6.7.0",
+		"prom-client": "^14.0.0",
 		"serve-buffer": "^2.3.0",
 		"ttl-buffer": "^1.0.0"
 	},
