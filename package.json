@@ -1,11 +1,12 @@
 {
 	"name": "hafas-gtfs-rt-feed",
 	"description": "Generate a GTFS Realtime feed by monitoring a HAFAS endpoint.",
-	"version": "5.3.0",
+	"version": "5.4.0",
 	"main": "index.js",
 	"bin": {
 		"monitor-hafas": "monitor.js",
 		"match-with-gtfs": "match.js",
+		"debug-gtfs-matching": "debug-matching.js",
 		"serve-as-gtfs-rt": "serve.js",
 		"gtfs-to-sql": "gtfs-to-sql",
 		"build-gtfs-match-index": "build-gtfs-match-index"
@@ -13,6 +14,7 @@
 	"files": [
 		"monitor.js",
 		"match.js",
+		"debug-matching.js",
 		"serve.js",
 		"gtfs-to-sql",
 		"build-gtfs-match-index",
