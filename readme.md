@@ -212,6 +212,16 @@ monitored_tiles_total 30
 monitored_trips_total 588
 ```
 
+### controlling the number of requests to HAFAS
+
+Currently, there is no mechanism to influence the total rate of requests to HAFAS *directly*, no prioritisation between the "find trips in a bounding box" (`hafas-client`'s `radar()`) and "refresh a trip" (`hafas-client`'s `trip()`) requests, and no logic to efficiently use requests up to a certain configured limit.
+
+However, there are some dials to influence the amount requests of both types:
+
+- By defining a smaller or larger bounding box via the `BBOX` environment variable, you can control the total number of monitored trips, and thus the rate of requests.
+- By setting `FETCH_TRIPS_INTERVAL`, you can choose how often each monitored trip shall be refreshed. Note that this is a *minimum* interval; If it takes too longer to refresh all trips, the interval will be longer, hence the rate of `trip()` requests will be lower.
+- You can throttle the total number of requests to HAFAS by [throttling `hafas-client`](https://github.com/public-transport/hafas-client/blob/5/throttle.js), but depending on the rate you configure, this might cause the refresh of all monitored trips (as well as finding new trips to monitor) to take longer than configured using `FETCH_TRIPS_INTERVAL`, so consider it as a secondary tool.
+
 
 ## Related
 
