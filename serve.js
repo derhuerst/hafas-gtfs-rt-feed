@@ -17,6 +17,7 @@ Usage:
     serve-as-gtfs-rt
 Options:
     --static-feed-info  -i  Path to GTFS-Static feed_info.txt file.
+    --static-feed-url   -u  Direct download URL of the GTFS-Static feed used.
 Examples:
     serve-as-gtfs-rt
 \n`)
@@ -37,6 +38,9 @@ if (pathToStaticFeedInfo) {
 	accessSync(pathToStaticFeedInfo, constants.R_OK)
 }
 
+const staticFeedUrl = argv['feed-url'] || argv['u'] || null
+
 serveGtfsRtViaHttp({
 	pathToStaticFeedInfo,
+	staticFeedUrl,
 })
