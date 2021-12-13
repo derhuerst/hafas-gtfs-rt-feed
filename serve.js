@@ -15,6 +15,8 @@ if (argv.help || argv.h) {
 	process.stdout.write(`
 Usage:
     serve-as-gtfs-rt
+Options:
+    --static-feed-info  -i  Path to GTFS-Static feed_info.txt file.
 Examples:
     serve-as-gtfs-rt
 \n`)
@@ -26,6 +28,15 @@ if (argv.version || argv.v) {
 	process.exit(0)
 }
 
+const {accessSync, constants} = require('fs')
 const serveGtfsRtViaHttp = require('./lib/serve')
 
-serveGtfsRtViaHttp()
+const pathToStaticFeedInfo = argv['feed-info'] || argv['i'] || null
+if (pathToStaticFeedInfo) {
+	// check if file is readable
+	accessSync(pathToStaticFeedInfo, constants.R_OK)
+}
+
+serveGtfsRtViaHttp({
+	pathToStaticFeedInfo,
+})

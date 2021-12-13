@@ -222,6 +222,19 @@ However, there are some dials to influence the amount requests of both types:
 - By setting `FETCH_TRIPS_INTERVAL`, you can choose how often each monitored trip shall be refreshed. Note that this is a *minimum* interval; If it takes too longer to refresh all trips, the interval will be longer, hence the rate of `trip()` requests will be lower.
 - You can throttle the total number of requests to HAFAS by [throttling `hafas-client`](https://github.com/public-transport/hafas-client/blob/5/throttle.js), but depending on the rate you configure, this might cause the refresh of all monitored trips (as well as finding new trips to monitor) to take longer than configured using `FETCH_TRIPS_INTERVAL`, so consider it as a secondary tool.
 
+### exposing feed metadata
+
+If you pass metadata about the GTFS-Static feed used, `serve-as-gtfs-rt` will expose it via HTTP:
+
+```shell
+serve-as-gtfs-rt \
+	--static-feed-info path/to/gtfs/files/feed_info.txt
+
+curl 'http://localhost:3000/feed_info.csv'
+# feed_publisher_name,feed_publisher_url,feed_lang,feed_start_date,feed_end_date,feed_version
+# openOV,http://openov.nl,en,20210108,20210221,20210108
+```
+
 
 ## Related
 

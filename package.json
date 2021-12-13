@@ -72,6 +72,7 @@
 		"p-limit": "^3.0.2",
 		"pino": "^7.0.5",
 		"prom-client": "^14.0.0",
+		"send": "^0.17.2",
 		"serve-buffer": "^3.0.3",
 		"ttl-buffer": "^1.0.0"
 	},
