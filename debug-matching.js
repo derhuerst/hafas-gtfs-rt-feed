@@ -8,15 +8,20 @@ const argv = mri(process.argv.slice(2), {
 	boolean: [
 		'help', 'h',
 		'version', 'v',
+		'match-trip-shapes',
 	]
 })
 
 if (argv.help || argv.h) {
 	process.stdout.write(`
 Usage:
-    debug-gtfs-matching <path-to-hafas-info> <path-to-gtfs-info> <trip|movement> <data
+    debug-gtfs-matching <path-to-hafas-info> <path-to-gtfs-info> [options] <trip|movement>
+Options:
+                             before it is being matched.
+    --before-match           Path to a hook function that modifies each trip/movement
+    --match-trip-shapes      Retrieve each trip's shape from the GTFS dataset.
 Examples:
-    match-with-gtfs hafas-info.js gtfs-info.js trip <trip.json
+    match-with-gtfs hafas-info.js gtfs-info.js trip --before-match trim-trip.js <trip.json
     match-with-gtfs hafas-info.js gtfs-info.js movement <mv.json
 \n`)
 	process.exit(0)
@@ -47,15 +52,24 @@ const gtfsInfo = require(pathResolve(process.cwd(), pathToGtfsInfo))
 
 const mode = argv._[2]
 
+let beforeMatchTrip = trip => trip
+let beforeMatchMovement = mv => mv
+if (argv['before-match']) {
+	const p = argv['before-match']
+	const beforeMatch = require(pathResolve(process.cwd(), p))
+	if (mode === 'trip') beforeMatchTrip = beforeMatch
+	else if (mode === 'movement') beforeMatchMovement = beforeMatch
+	else showError('invalid mode')
+}
+
 const {
 	matchTripWithGtfs,
 	matchMovementWithGtfs,
 } = createMatchWithGtfs({
 	hafasInfo, gtfsInfo,
-	// todo: make configurable
-	beforeMatchTrip: trip => trip,
-	beforeMatchMovement: mv => mv,
-	matchTripPolylines: false,
+	beforeMatchTrip,
+	beforeMatchMovement,
+	matchTripPolylines: !!argv['match-trip-shapes'],
 	logger,
 })
 
