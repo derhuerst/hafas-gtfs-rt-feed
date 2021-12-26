@@ -23,10 +23,14 @@ Examples:
 }
 
 const {resolve: pathResolve} = require('path')
-const {createMatchTrip, createMatchMovement} = require('match-gtfs-rt-to-gtfs')
+const createLogger = require('./lib/logger')
 const withSoftExit = require('./lib/soft-exit')
+const {
+	createMatchWithGtfs,
+	closeMatching,
+} = require('./lib/raw-match')
 
-const MATCHED = Symbol.for('match-gtfs-rt-to-gtfs:matched')
+const logger = createLogger('debug-matching')
 
 const showError = (err) => {
 	console.error(err)
@@ -42,23 +46,38 @@ if (!pathToGtfsInfo) showError('Missing path-to-gtfs-info argument.')
 const gtfsInfo = require(pathResolve(process.cwd(), pathToGtfsInfo))
 
 const mode = argv._[2]
+
+const {
+	matchTripWithGtfs,
+	matchMovementWithGtfs,
+} = createMatchWithGtfs({
+	hafasInfo, gtfsInfo,
+	// todo: make configurable
+	beforeMatchTrip: trip => trip,
+	beforeMatchMovement: mv => mv,
+	matchTripPolylines: false,
+	logger,
+})
+
 let matchWithGtfs
 if (mode === 'trip') {
-	matchWithGtfs = createMatchTrip(hafasInfo, gtfsInfo)
+	matchWithGtfs = matchTripWithGtfs
 } else if (mode === 'movement') {
-	matchWithGtfs = createMatchMovement(hafasInfo, gtfsInfo)
+	matchWithGtfs = matchMovementWithGtfs
 } else showError('invalid mode')
+
+withSoftExit(closeMatching)
 
 ;(async () => {
 	let item = ''
 	for await (const chunk of process.stdin) item += chunk
 	item = JSON.parse(item)
 
-	const t1 = Date.now()
-	item = await matchWithGtfs(item)
-	const matchTime = Date.now() - t1
+	const res = await matchWithGtfs(item)
+	item = res.item
+	const {isMatched, matchTime} = res
 
-	if (item[MATCHED] === true) {
+	if (isMatched === true) {
 		console.info(`matched in ${matchTime}ms`)
 		process.exit(0)
 	} else {
