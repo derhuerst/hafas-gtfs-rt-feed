@@ -240,6 +240,12 @@ curl 'http://localhost:3000/feed_info.csv' -I
 # location: https://data.ndovloket.nl/flixbus/flixbus-eu.zip
 ```
 
+### on-demand mode
+
+Optionally, you can run your GTFS-RT feed in a demand-responsive mode, where it will only fetch data from HAFAS as long someone requests the GTFS-RT feed.
+
+It lets `serve-as-gtfs-rt` signal demand for fresh data to `monitor-hafas` via the `demand` NATS Streaming channel. You'll have to run `monitor-hafas` with `--on-demand` and `serve-as-gtfs-rt` with `--signal-demand`.
+
 
 ## Related
 

@@ -8,6 +8,7 @@ const argv = mri(process.argv.slice(2), {
 	boolean: [
 		'help', 'h',
 		'version', 'v',
+		'signal-demand', 'd',
 	]
 })
 
@@ -18,6 +19,7 @@ Usage:
 Options:
     --static-feed-info  -i  Path to GTFS-Static feed_info.txt file.
     --static-feed-url   -u  Direct download URL of the GTFS-Static feed used.
+    --signal-demand     -d  Signal demand in fresh data to the monitor component.
 Examples:
     serve-as-gtfs-rt
 \n`)
@@ -40,7 +42,10 @@ if (pathToStaticFeedInfo) {
 
 const staticFeedUrl = argv['feed-url'] || argv['u'] || null
 
+const signalDemand = !!(argv['signal-demand'] || argv['d'])
+
 serveGtfsRtViaHttp({
 	pathToStaticFeedInfo,
 	staticFeedUrl,
+	signalDemand,
 })
