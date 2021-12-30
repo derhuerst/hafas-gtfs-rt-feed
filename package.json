@@ -62,7 +62,7 @@
 		"gtfs-rt-bindings": "^4.0.1",
 		"gtfs-rt-differential-to-full-dataset": "^2.0.1",
 		"gtfs-via-postgres": "^3.0.1",
-		"hafas-monitor-trips": "^5.0.0",
+		"hafas-monitor-trips": "^5.1.0",
 		"lodash": "^4.17.20",
 		"luxon": "^2.0.2",
 		"match-gtfs-rt-to-gtfs": "^5.0.0",
