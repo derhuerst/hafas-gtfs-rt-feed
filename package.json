@@ -60,7 +60,7 @@
 		"debug": "^4.1.1",
 		"etag": "^1.8.1",
 		"gtfs-rt-bindings": "^4.0.1",
-		"gtfs-rt-differential-to-full-dataset": "^2.0.1",
+		"gtfs-rt-differential-to-full-dataset": "^2.1.0",
 		"gtfs-via-postgres": "^3.0.1",
 		"hafas-monitor-trips": "^6.0.0",
 		"lodash": "^4.17.20",

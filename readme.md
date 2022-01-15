@@ -220,6 +220,22 @@ fetch_all_movements_total 1
 fetch_all_movements_duration_seconds 2.4
 ```
 
+### health check
+
+`serve-as-gtfs-rt` exposes a [health check](https://microservices.io/patterns/observability/health-check-api.html) that checks if there are any recent entities in the feed.
+
+```shell
+# healthy
+curl 'http://localhost:3000/health' -I
+# HTTP/1.1 200 OK
+# …
+
+# not healthy
+curl 'http://localhost:3000/health' -I
+# HTTP/1.1 503 Service Unavailable
+# …
+```
+
 ### on-demand mode
 
 Optionally, you can run your GTFS-RT feed in a demand-responsive mode, where it will only fetch data from HAFAS as long someone requests the GTFS-RT feed, which effectively reduces the long-term nr. of requests to HAFAS.

@@ -30,7 +30,8 @@ NODE_ENV=production ../gtfs-to-sql --trips-without-shape-id -d -- \
 
 NODE_ENV=production ../build-gtfs-match-index \
 	hafas-info.js gtfs-info.js \
-	| psql -b
+	>sql
+psql -b -f sql
 
 export MATCH_TRIP_TIMEOUT=300000 # 5m
 export MATCH_MOVEMENT_TIMEOUT=300000 # 5m
@@ -42,7 +43,14 @@ trap 'exit_code=$?; kill -- $(jobs -p); exit $exit_code' SIGINT SIGTERM EXIT
 ../match.js hafas-info.js gtfs-info.js &
 ../serve.js &
 
-sleep 3 # wait for match.js to connect (i know this is ugly)
+sleep 5 # wait for match.js & serve.js to start up (i know this is ugly)
+
+health_status="$(curl 'http://localhost:3000/health' -I -s | grep -o -m1 -E '[0-9]{3}')"
+if [ "$health_status" != '503' ]; then
+	1>&2 echo "/health: expected 503, got $health_status"
+	exit 1
+fi
+
 cat unmatched-movements.ndjson.gz | gunzip | publish-to-nats-streaming-channel movements -s
 cat unmatched-trips.ndjson.gz | gunzip | publish-to-nats-streaming-channel trips -s
 
@@ -77,6 +85,12 @@ nats-streaming-stats
 ./expect-fully-read-sub "$match_client_id" trips
 ./expect-fully-read-sub "$serve_client_id" matched-movements
 ./expect-fully-read-sub "$serve_client_id" matched-trips
+
+health_status="$(curl 'http://localhost:3000/health' -I -s | grep -o -m1 -E '[0-9]{3}')"
+if [ "$health_status" != '200' ]; then
+	1>&2 echo "/health: expected 200, got $health_status"
+	exit 1
+fi
 
 curl 'http://localhost:3000/' -s \
 | ../node_modules/.bin/print-gtfs-rt --json \
