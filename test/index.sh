@@ -9,7 +9,9 @@ set -x
 
 node truncate-at-in-seat-transfer.js
 
-wget -q -r --no-parent --no-directories -P gtfs -N 'https://vbb-gtfs.jannisr.de/2020-12-28/'
+wget --compression auto \
+	-r --no-parent --no-directories -R .csv.gz \
+	-P gtfs -N 'https://vbb-gtfs.jannisr.de/2020-12-28/'
 
 env | grep '^PG' || true
 
