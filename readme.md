@@ -11,7 +11,7 @@
 
 ## Architecture
 
-`hafas-gtfs-rt-feed` consists of several components, connected to each other via the [NATS Streaming](https://docs.nats.io/nats-streaming-concepts/intro) channels:
+`hafas-gtfs-rt-feed` consists of several components, connected to each other via [NATS Streaming](https://docs.nats.io/nats-streaming-concepts/intro) channels:
 
 1. `monitor-hafas`: Given a [`hafas-client` instance](https://github.com/public-transport/hafas-client), it uses [`hafas-monitor-trips`](https://github.com/derhuerst/hafas-monitor-trips) to poll live data about all vehicles in the configured geographic area.
 2. `match-with-gtfs`: Uses [`match-gtfs-rt-to-gtfs`](https://github.com/derhuerst/match-gtfs-rt-to-gtfs) to match this data against [static GTFS](https://developers.google.com/transit/gtfs) data imported into a database.
@@ -187,7 +187,7 @@ nats_streaming_sent_total{channel="trips"} 1162
 
 # HELP hafas_reqs_total nr. of HAFAS requests
 # TYPE hafas_reqs_total counter
-hafas_reqs_total{call="radar"} 90
+hafas_reqs_total{call="radar"} 12
 hafas_reqs_total{call="trip"} 1165
 
 # HELP hafas_response_time_seconds HAFAS response time
@@ -203,13 +203,71 @@ hafas_response_time_seconds{quantile="0.95",call="trip"} 54.51257142857143
 hafas_response_time_seconds_sum{call="trip"} 33225.48200000005
 hafas_response_time_seconds_count{call="trip"} 1165
 
-# HELP monitored_tiles_total nr. of tiles being monitored
-# TYPE monitored_tiles_total gauge
-monitored_tiles_total 30
+# HELP tiles_fetched_total nr. of tiles fetched from HAFAS
+# TYPE tiles_fetched_total counter
+tiles_fetched_total 2
 
-# HELP monitored_trips_total nr. of trips being monitored
-# TYPE monitored_trips_total gauge
-monitored_trips_total 588
+# HELP movements_fetched_total nr. of movements fetched from HAFAS
+# TYPE movements_fetched_total counter
+movements_fetched_total 362
+
+# HELP fetch_all_movements_total how often all movements have been fetched
+# TYPE fetch_all_movements_total counter
+fetch_all_movements_total 1
+
+# HELP fetch_all_movements_duration_seconds time that fetching all movements currently takes
+# TYPE fetch_all_movements_duration_seconds gauge
+fetch_all_movements_duration_seconds 2.4
+```
+
+### on-demand mode
+
+Optionally, you can run your GTFS-RT feed in a demand-responsive mode, where it will only fetch data from HAFAS as long someone requests the GTFS-RT feed, which effectively reduces the long-term nr. of requests to HAFAS.
+
+To understand how this works, remember that
+
+- movements fetched from HAFAS are formatted as GTFS-RT `VehiclePosition`s.
+- trips fetched from HAFAS are formatted as GTFS-RT `TripUpdate`s.
+- the whole `monitor-hafas`, `match-with-gtfs` & `serve-as-gtfs-rt` setup works like a streaming pipeline.
+
+The on-demand mode works like this:
+
+- `monitor-hafas` is either just fetching movements (if you configured it to fetch *only trips* on demand) or completely idle (if you configured it to fetch *both movements & trips* on demand) by default.
+- `monitor-hafas` also subscribes to a `demand` NATS Streaming channel, which serves as a communication channel for `serve-as-gtfs-rt` to signal demand.
+- When the GTFS-RT feed is requested via HTTP,
+	1. `serve-as-gtfs-rt` serves the current feed (which contains either `VehiclePositions`s only, or no entities whatsoever, depending on the on-demand configuration).
+	2. `serve-as-gtfs-rt` signals demand via the `demand` channel.
+	3. Upon receiving a demand signal, `monitor-hafas` will start fetching trips – or both movements & trips, depending on the on-demand configuration.
+
+This means that, after a first request(s) for the GTFS-RT feed signalling demand, it will take a bit of time until all data is served with subsequent GTFS-RT feed requests; As long as there is constant for the feed, the on-demand mode will behave as if it isn't turned on.
+
+Tell `serve-as-gtfs-rt` to signal demand via the `--signal-demand` option. You can then configure `monitor-hafas`'s exact behaviour using the following options:
+
+```
+--movements-fetch-mode <mode>
+    Control when movements are fetched from HAFAS.
+    "on-demand":
+        Only fetch movements from HAFAS when the `serve-as-gtfs-rt` component
+        has signalled demand. Trips won't be fetched continuously anymore.
+    "continuously" (default):
+        Always fetch movements.
+--movements-demand-duration <milliseconds>
+    With `--movements-fetch-mode "on-demand"`, when the `serve-as-gtfs-rt` component
+    has signalled demand, for how long shall movements be fetched?
+    Default: movements fetching interval (60s by default) * 5
+--trips-fetch-mode <mode>
+    Control when trips are fetched from HAFAS.
+    "never":
+        Never fetch a movement's respective trip.
+    "on-demand":
+        Only fetch movements' respective trips from HAFAS when the `serve-as-gtfs-rt`
+        component has signalled demand.
+    "continuously" (default):
+        Always fetch each movement's respective trip.
+--trips-demand-duration <milliseconds>
+    With `--trips-fetch-mode "on-demand"`, when the `serve-as-gtfs-rt` component
+    has signalled demand, for how long shall trips be fetched?
+    Default: movements fetching interval (60s by default) * 2
 ```
 
 ### controlling the number of requests to HAFAS
@@ -239,12 +297,6 @@ curl 'http://localhost:3000/feed_info.csv' -I
 # HTTP/1.1 302 Found
 # location: https://data.ndovloket.nl/flixbus/flixbus-eu.zip
 ```
-
-### on-demand mode
-
-Optionally, you can run your GTFS-RT feed in a demand-responsive mode, where it will only fetch data from HAFAS as long someone requests the GTFS-RT feed.
-
-It lets `serve-as-gtfs-rt` signal demand for fresh data to `monitor-hafas` via the `demand` NATS Streaming channel. You'll have to run `monitor-hafas` with `--on-demand` and `serve-as-gtfs-rt` with `--signal-demand`.
 
 
 ## Related
