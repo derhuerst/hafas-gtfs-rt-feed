@@ -23,6 +23,9 @@ Options:
             has signalled demand. Trips won't be fetched continuously anymore.
         "continuously" (default):
             Always fetch movements.
+    --movements-fetch-interval-fn
+        Path to a file exporting a function that returns the milliseconds that all movements
+        should be fetched again after.
     --movements-demand-duration <milliseconds>
         With \`--movements-fetch-mode "on-demand"\`, when the \`serve-as-gtfs-rt\` component
         has signalled demand, for how long shall movements be fetched?
@@ -69,6 +72,13 @@ const opt = {
 
 if (argv['movements-fetch-mode']) {
 	opt.movementsFetchMode = argv['movements-fetch-mode']
+}
+if (argv['movements-fetch-interval-fn']) {
+	const p = argv['movements-fetch-interval-fn']
+	opt.fetchTilesInterval = require(pathResolve(process.cwd(), p))
+	if ('function' !== typeof opt.fetchTilesInterval) {
+		showError('File specified by --movements-fetch-interval-fn does not export a function.')
+	}
 }
 if (argv['movements-demand-duration']) {
 	opt.movementsDemandDuration = parseInt(argv['movements-demand-duration'])
