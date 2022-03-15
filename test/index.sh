@@ -41,7 +41,7 @@ export MATCH_MOVEMENT_TIMEOUT=300000 # 5m
 trap 'exit_code=$?; kill -- $(jobs -p); exit $exit_code' SIGINT SIGTERM EXIT
 
 ../match.js hafas-info.js gtfs-info.js &
-../serve.js &
+../serve.js --feed-url 'foo/Bar' &
 
 sleep 5 # wait for match.js & serve.js to start up (i know this is ugly)
 
@@ -50,6 +50,9 @@ if [ "$health_status" != '503' ]; then
 	1>&2 echo "/health: expected 503, got $health_status"
 	exit 1
 fi
+
+feed_url="$(curl 'http://localhost:3000/gtfs-static' -I -s | grep -m1 '^location: ')"
+node -e "assert.strictEqual(\`$feed_url\`.trim(), 'location: foo/Bar', '/health')"
 
 cat unmatched-movements.ndjson.gz | gunzip | publish-to-nats-streaming-channel movements -s
 cat unmatched-trips.ndjson.gz | gunzip | publish-to-nats-streaming-channel trips -s

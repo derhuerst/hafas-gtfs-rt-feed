@@ -17,8 +17,8 @@ if (argv.help || argv.h) {
 Usage:
     serve-as-gtfs-rt
 Options:
-    --static-feed-info  -i  Path to GTFS-Static feed_info.txt file.
-    --static-feed-url   -u  Direct download URL of the GTFS-Static feed used.
+    --feed-info         -i  Path to GTFS-Static feed_info.txt file.
+    --feed-url          -u  Direct download URL of the GTFS-Static feed used.
     --signal-demand     -d  Signal demand in fresh data to the monitor component.
 Examples:
     serve-as-gtfs-rt
@@ -34,12 +34,14 @@ if (argv.version || argv.v) {
 const {accessSync, constants} = require('fs')
 const serveGtfsRtViaHttp = require('./lib/serve')
 
+// todo [breaking]: rename to --static-feed-info
 const pathToStaticFeedInfo = argv['feed-info'] || argv['i'] || null
 if (pathToStaticFeedInfo) {
 	// check if file is readable
 	accessSync(pathToStaticFeedInfo, constants.R_OK)
 }
 
+// todo [breaking]: rename to --static-feed-url
 const staticFeedUrl = argv['feed-url'] || argv['u'] || null
 
 const signalDemand = !!(argv['signal-demand'] || argv['d'])
