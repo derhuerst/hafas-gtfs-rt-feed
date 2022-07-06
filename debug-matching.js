@@ -23,6 +23,9 @@ Options:
 Examples:
     match-with-gtfs hafas-info.js gtfs-info.js trip --before-match trim-trip.js <trip.json
     match-with-gtfs hafas-info.js gtfs-info.js movement <mv.json
+Notes:
+	Run with LOG_LEVEL=debug and optionally with DEBUG='match-gtfs-rt-to-gtfs*' to
+	get more details on the matching process.
 \n`)
 	process.exit(0)
 }
@@ -92,7 +95,8 @@ withSoftExit(closeMatching)
 	const {isMatched, matchTime} = res
 
 	if (isMatched === true) {
-		console.info(`matched in ${matchTime}ms`)
+		console.error(`matched in ${matchTime}ms`)
+		process.stdout.write(JSON.stringify(item) + '\n')
 		process.exit(0)
 	} else {
 		console.error(`failed to match in ${matchTime}ms`)
