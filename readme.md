@@ -53,7 +53,7 @@ npm init
 
 ### set up PostgreSQL
 
-Make sure you have a reasonably recent version of [PostgreSQL](https://www.postgresql.org) installed and running. There are guides for many operating systems and environments available on the internet.
+Make sure you have **[PostgreSQL](https://www.postgresql.org) >=14** installed and running, as [`match-gtfs-rt-to-gtfs`](https://github.com/derhuerst/match-gtfs-rt-to-gtfs), a dependency of this project, needs it. There are guides for many operating systems and environments available on the internet.
 
 *Note:* If you run PostgreSQL on a different host or port, pass custom [`PG*` environment variables](https://www.postgresql.org/docs/13/libpq-envars.html) into the `match.js` component.
 
