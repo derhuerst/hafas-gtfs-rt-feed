@@ -25,11 +25,13 @@ jobs:
     - run: npm run lint
 
     - name: install & start PostgreSQL with PostGIS
-      uses: huaxk/postgis-action@v1
+      # pin to commit that changes it to use the postgis/postgis Docker image, which we need for PostgreSQL version 14
+      uses: huaxk/postgis-action@0e3a7a41c0b06b9a1fe690d937f21168af8839bd
       with:
         postgresql password: password
         postgresql user: postgres
         postgresql db: postgres
+        postgresql version: '14-3.2-alpine'
 
     - name: install & start Redis
       uses: supercharge/redis-github-action@1.1.0
