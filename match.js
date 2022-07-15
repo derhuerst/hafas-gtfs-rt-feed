@@ -33,6 +33,7 @@ if (argv.version || argv.v) {
 }
 
 const {resolve: pathResolve} = require('path')
+const {types: {isModuleNamespaceObject}} = require('util')
 const runMatching = require('./lib/match')
 
 const showError = (err) => {
@@ -40,13 +41,19 @@ const showError = (err) => {
 	process.exit(1)
 }
 
+;(async () => {
+
 const pathToHafasInfo = argv._[0]
 if (!pathToHafasInfo) showError('Missing path-to-hafas-info argument.')
-const hafasInfo = require(pathResolve(process.cwd(), pathToHafasInfo))
+let hafasInfo = await import(pathResolve(process.cwd(), pathToHafasInfo))
+// handle CommonJS modules & default exports
+if (isModuleNamespaceObject(hafasInfo)) hafasInfo = hafasInfo.default
 
 const pathToGtfsInfo = argv._[1]
 if (!pathToGtfsInfo) showError('Missing path-to-gtfs-info argument.')
-const gtfsInfo = require(pathResolve(process.cwd(), pathToGtfsInfo))
+let gtfsInfo = await import(pathResolve(process.cwd(), pathToGtfsInfo))
+// handle CommonJS modules & default exports
+if (isModuleNamespaceObject(gtfsInfo)) gtfsInfo = gtfsInfo.default
 
 const opt = {}
 
@@ -67,3 +74,6 @@ if (argv['before-match-movement']) {
 }
 
 runMatching(hafasInfo, gtfsInfo, opt)
+
+})()
+.catch(showError)
