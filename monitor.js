@@ -55,6 +55,7 @@ if (argv.version || argv.v) {
 }
 
 const {resolve: pathResolve} = require('path')
+const {types: {isModuleNamespaceObject}} = require('util')
 const runMonitor = require('./lib/monitor')
 
 const showError = (err) => {
@@ -62,9 +63,13 @@ const showError = (err) => {
 	process.exit(1)
 }
 
+;(async () => {
+
 const pathToHafasClient = argv._[0]
 if (!pathToHafasClient) showError('Missing path-to-hafas-client argument.')
-const hafasClient = require(pathResolve(process.cwd(), pathToHafasClient))
+let hafasClient = await import(pathResolve(process.cwd(), pathToHafasClient))
+// handle CommonJS modules & default exports
+if (isModuleNamespaceObject(hafasClient)) hafasClient = hafasClient.default
 
 const opt = {
 	bbox: argv._[1] || JSON.parse(process.env.BBOX || 'null'),
@@ -91,3 +96,6 @@ if (argv['trips-demand-duration']) {
 }
 
 runMonitor(hafasClient, opt)
+
+})()
+.catch(showError)
