@@ -31,6 +31,7 @@ Notes:
 }
 
 const {resolve: pathResolve} = require('path')
+const {types: {isModuleNamespaceObject}} = require('util')
 const createLogger = require('./lib/logger')
 const withSoftExit = require('./lib/soft-exit')
 const {
@@ -45,13 +46,19 @@ const showError = (err) => {
 	process.exit(1)
 }
 
+;(async () => {
+
 const pathToHafasInfo = argv._[0]
 if (!pathToHafasInfo) showError('Missing path-to-hafas-info argument.')
-const hafasInfo = require(pathResolve(process.cwd(), pathToHafasInfo))
+let hafasInfo = await import(pathResolve(process.cwd(), pathToHafasInfo))
+// handle CommonJS modules & default exports
+if (isModuleNamespaceObject(hafasInfo)) hafasInfo = hafasInfo.default
 
 const pathToGtfsInfo = argv._[1]
 if (!pathToGtfsInfo) showError('Missing path-to-gtfs-info argument.')
-const gtfsInfo = require(pathResolve(process.cwd(), pathToGtfsInfo))
+let gtfsInfo = await import(pathResolve(process.cwd(), pathToGtfsInfo))
+// handle CommonJS modules & default exports
+if (isModuleNamespaceObject(gtfsInfo)) gtfsInfo = gtfsInfo.default
 
 const mode = argv._[2]
 
@@ -59,7 +66,9 @@ let beforeMatchTrip = trip => trip
 let beforeMatchMovement = mv => mv
 if (argv['before-match']) {
 	const p = argv['before-match']
-	const beforeMatch = require(pathResolve(process.cwd(), p))
+	let beforeMatch = await import(pathResolve(process.cwd(), p))
+	// handle CommonJS modules & default exports
+	if (isModuleNamespaceObject(beforeMatch)) beforeMatch = beforeMatch.default
 	if (mode === 'trip') beforeMatchTrip = beforeMatch
 	else if (mode === 'movement') beforeMatchMovement = beforeMatch
 	else showError('invalid mode')
@@ -85,7 +94,6 @@ if (mode === 'trip') {
 
 withSoftExit(closeMatching)
 
-;(async () => {
 	let item = ''
 	for await (const chunk of process.stdin) item += chunk
 	item = JSON.parse(item)
