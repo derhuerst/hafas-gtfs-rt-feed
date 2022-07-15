@@ -1,7 +1,7 @@
 {
 	"name": "hafas-gtfs-rt-feed",
 	"description": "Generate a GTFS Realtime feed by monitoring a HAFAS endpoint.",
-	"version": "8.0.0",
+	"version": "8.1.0",
 	"main": "index.js",
 	"bin": {
 		"monitor-hafas": "monitor.js",
