@@ -55,7 +55,7 @@ npm init
 
 Make sure you have **[PostgreSQL](https://www.postgresql.org) >=14** installed and running, as [`match-gtfs-rt-to-gtfs`](https://github.com/derhuerst/match-gtfs-rt-to-gtfs), a dependency of this project, needs it. There are guides for many operating systems and environments available on the internet.
 
-*Note:* If you run PostgreSQL on a different host or port, pass custom [`PG*` environment variables](https://www.postgresql.org/docs/13/libpq-envars.html) into the `match.js` component.
+*Note:* If you run PostgreSQL on a different host or port, pass custom [`PG*` environment variables](https://www.postgresql.org/docs/13/libpq-envars.html) into `gtfs-to-sql`, `build-gtfs-match-index` & `match.js` (their usage is explained below).
 
 ### install `hafas-gtfs-rt-feed`
 
@@ -321,6 +321,8 @@ curl 'http://localhost:3000/feed_info.csv' -I
 - [`match-gtfs-rt-to-gtfs`](https://github.com/derhuerst/match-gtfs-rt-to-gtfs) – Match realtime transit data (e.g. from [GTFS Realtime](https://gtfs.org/reference/realtime/v2/)) with [GTFS Static](https://gtfs.org/reference/static) data, even if they don't share an ID.
 - [`gtfs-rt-differential-to-full-dataset`](https://github.com/derhuerst/gtfs-rt-differential-to-full-dataset) – Transform a continuous [GTFS Realtime](https://developers.google.com/transit/gtfs-realtime/) stream of [`DIFFERENTIAL` incrementality](https://developers.google.com/transit/gtfs-realtime/reference/#enum-incrementality) data into a [`FULL_DATASET`](https://developers.google.com/transit/gtfs-realtime/reference/#enum-incrementality) dump.
 - [`transloc-to-gtfs-real-time`](https://github.com/jonathonwpowell/transloc-to-gtfs-real-time) – Transform Transloc Real Time API to the GTFS RealTime Format
+
+There are [several projects making use of `hafas-gtfs-rt-server`](https://github.com/derhuerst/hafas-gtfs-rt-feed/network/dependents?package_id=UGFja2FnZS00MzY3NzU1NjU%3D).
 
 
 ## License
