@@ -1,17 +1,42 @@
 #!/usr/bin/env node
 'use strict'
 
-const mri = require('mri')
+const {parseArgs} = require('util')
 const pkg = require('./package.json')
 
-const argv = mri(process.argv.slice(2), {
-	boolean: [
-		'help', 'h',
-		'version', 'v',
-	]
+const {
+    values: flags,
+    positionals: args,
+} = parseArgs({
+	options: {
+		'help': {
+            type: 'boolean',
+            short: 'h',
+        },
+		'version': {
+            type: 'boolean',
+            short: 'v',
+        },
+        'movements-fetch-mode': {
+            type: 'string',
+        },
+        'movements-fetch-interval-fn': {
+            type: 'string',
+        },
+        'movements-demand-duration': {
+            type: 'string',
+        },
+        'trips-fetch-mode': {
+            type: 'string',
+        },
+        'trips-demand-duration': {
+            type: 'string',
+        },
+    },
+    allowPositionals: true,
 })
 
-if (argv.help || argv.h) {
+if (flags.help) {
 	process.stdout.write(`
 Usage:
     monitor-hafas <path-to-hafas-client> [bbox]
@@ -49,7 +74,7 @@ Examples:
 	process.exit(0)
 }
 
-if (argv.version || argv.v) {
+if (flags.version) {
 	process.stdout.write(`${pkg.name} v${pkg.version}\n`)
 	process.exit(0)
 }
@@ -65,34 +90,34 @@ const showError = (err) => {
 
 ;(async () => {
 
-const pathToHafasClient = argv._[0]
+const pathToHafasClient = args[0]
 if (!pathToHafasClient) showError('Missing path-to-hafas-client argument.')
 let hafasClient = await import(pathResolve(process.cwd(), pathToHafasClient))
 // handle CommonJS modules & default exports
 if (isModuleNamespaceObject(hafasClient)) hafasClient = hafasClient.default
 
 const opt = {
-	bbox: argv._[1] || JSON.parse(process.env.BBOX || 'null'),
+	bbox: args[1] || JSON.parse(process.env.BBOX || 'null'),
 }
 
-if (argv['movements-fetch-mode']) {
-	opt.movementsFetchMode = argv['movements-fetch-mode']
+if (flags['movements-fetch-mode']) {
+	opt.movementsFetchMode = flags['movements-fetch-mode']
 }
-if (argv['movements-fetch-interval-fn']) {
-	const p = argv['movements-fetch-interval-fn']
+if (flags['movements-fetch-interval-fn']) {
+	const p = flags['movements-fetch-interval-fn']
 	opt.fetchTilesInterval = require(pathResolve(process.cwd(), p))
 	if ('function' !== typeof opt.fetchTilesInterval) {
 		showError('File specified by --movements-fetch-interval-fn does not export a function.')
 	}
 }
-if (argv['movements-demand-duration']) {
-	opt.movementsDemandDuration = parseInt(argv['movements-demand-duration'])
+if (flags['movements-demand-duration']) {
+	opt.movementsDemandDuration = parseInt(flags['movements-demand-duration'])
 }
-if (argv['trips-fetch-mode']) {
-	opt.tripsFetchMode = argv['trips-fetch-mode']
+if (flags['trips-fetch-mode']) {
+	opt.tripsFetchMode = flags['trips-fetch-mode']
 }
-if (argv['trips-demand-duration']) {
-	opt.tripsDemandDuration = parseInt(argv['trips-demand-duration'])
+if (flags['trips-demand-duration']) {
+	opt.tripsDemandDuration = parseInt(flags['trips-demand-duration'])
 }
 
 runMonitor(hafasClient, opt)

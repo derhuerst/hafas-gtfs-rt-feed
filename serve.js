@@ -1,18 +1,37 @@
 #!/usr/bin/env node
 'use strict'
 
-const mri = require('mri')
+const {parseArgs} = require('util')
 const pkg = require('./package.json')
 
-const argv = mri(process.argv.slice(2), {
-	boolean: [
-		'help', 'h',
-		'version', 'v',
-		'signal-demand', 'd',
-	]
+const {
+	values: flags,
+} = parseArgs({
+	options: {
+		'help': {
+			type: 'boolean',
+			short: 'h',
+		},
+		'version': {
+			type: 'boolean',
+			short: 'v',
+		},
+		'feed-info': {
+			type: 'string',
+			short: 'i',
+		},
+		'feed-url': {
+			type: 'string',
+			short: 'u',
+		},
+		'signal-demand': {
+			type: 'boolean',
+			short: 'd',
+		},
+	},
 })
 
-if (argv.help || argv.h) {
+if (flags.help) {
 	process.stdout.write(`
 Usage:
     serve-as-gtfs-rt
@@ -26,7 +45,7 @@ Examples:
 	process.exit(0)
 }
 
-if (argv.version || argv.v) {
+if (flags.version) {
 	process.stdout.write(`${pkg.name} v${pkg.version}\n`)
 	process.exit(0)
 }
@@ -35,16 +54,16 @@ const {accessSync, constants} = require('fs')
 const serveGtfsRtViaHttp = require('./lib/serve')
 
 // todo [breaking]: rename to --static-feed-info
-const pathToStaticFeedInfo = argv['feed-info'] || argv['i'] || null
+const pathToStaticFeedInfo = flags['feed-info'] || null
 if (pathToStaticFeedInfo) {
 	// check if file is readable
 	accessSync(pathToStaticFeedInfo, constants.R_OK)
 }
 
 // todo [breaking]: rename to --static-feed-url
-const staticFeedUrl = argv['feed-url'] || argv['u'] || null
+const staticFeedUrl = flags['feed-url'] || null
 
-const signalDemand = !!(argv['signal-demand'] || argv['d'])
+const signalDemand = !!flags['signal-demand']
 
 serveGtfsRtViaHttp({
 	pathToStaticFeedInfo,

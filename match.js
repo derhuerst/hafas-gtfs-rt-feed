@@ -1,17 +1,33 @@
 #!/usr/bin/env node
 'use strict'
 
-const mri = require('mri')
+const {parseArgs} = require('util')
 const pkg = require('./package.json')
 
-const argv = mri(process.argv.slice(2), {
-	boolean: [
-		'help', 'h',
-		'version', 'v',
-	]
+const {
+	values: flags,
+	positionals: args,
+} = parseArgs({
+	options: {
+		'help': {
+			type: 'boolean',
+			short: 'h',
+		},
+		'version': {
+			type: 'boolean',
+			short: 'v',
+		},
+		'before-match-trip': {
+			type: 'string',
+		},
+		'before-match-movement': {
+			type: 'string',
+		},
+	},
+	allowPositionals: true,
 })
 
-if (argv.help || argv.h) {
+if (flags.help) {
 	process.stdout.write(`
 Usage:
     match-with-gtfs <path-to-hafas-info> <path-to-gtfs-info> [options]
@@ -27,7 +43,7 @@ Examples:
 	process.exit(0)
 }
 
-if (argv.version || argv.v) {
+if (flags.version) {
 	process.stdout.write(`${pkg.name} v${pkg.version}\n`)
 	process.exit(0)
 }
@@ -43,13 +59,13 @@ const showError = (err) => {
 
 ;(async () => {
 
-const pathToHafasInfo = argv._[0]
+const pathToHafasInfo = args[0]
 if (!pathToHafasInfo) showError('Missing path-to-hafas-info argument.')
 let hafasInfo = await import(pathResolve(process.cwd(), pathToHafasInfo))
 // handle CommonJS modules & default exports
 if (isModuleNamespaceObject(hafasInfo)) hafasInfo = hafasInfo.default
 
-const pathToGtfsInfo = argv._[1]
+const pathToGtfsInfo = args[1]
 if (!pathToGtfsInfo) showError('Missing path-to-gtfs-info argument.')
 let gtfsInfo = await import(pathResolve(process.cwd(), pathToGtfsInfo))
 // handle CommonJS modules & default exports
@@ -57,16 +73,16 @@ if (isModuleNamespaceObject(gtfsInfo)) gtfsInfo = gtfsInfo.default
 
 const opt = {}
 
-if (argv['before-match-trip']) {
-	const p = argv['before-match-trip']
+if (flags['before-match-trip']) {
+	const p = flags['before-match-trip']
 	opt.beforeMatchTrip = require(pathResolve(process.cwd(), p))
 	if ('function' !== typeof opt.beforeMatchTrip) {
 		showError('File specified by --before-match-trip does not export a function.')
 	}
 }
 
-if (argv['before-match-movement']) {
-	const p = argv['before-match-movement']
+if (flags['before-match-movement']) {
+	const p = flags['before-match-movement']
 	opt.beforeMatchMovement = require(pathResolve(process.cwd(), p))
 	if ('function' !== typeof opt.beforeMatchMovement) {
 		showError('File specified by --before-match-movement does not export a function.')

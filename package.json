@@ -52,7 +52,7 @@
 		}
 	],
 	"engines": {
-		"node": ">=16"
+		"node": ">=16.17"
 	},
 	"dependencies": {
 		"@derhuerst/round-robin-scheduler": "^1.0.4",
