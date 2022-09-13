@@ -105,7 +105,11 @@ if (flags['movements-fetch-mode']) {
 }
 if (flags['movements-fetch-interval-fn']) {
 	const p = flags['movements-fetch-interval-fn']
-	opt.fetchTilesInterval = require(pathResolve(process.cwd(), p))
+	opt.fetchTilesInterval = await import(pathResolve(process.cwd(), p))
+	// handle CommonJS modules & default exports
+	if (isModuleNamespaceObject(opt.fetchTilesInterval)) {
+		opt.fetchTilesInterval = opt.fetchTilesInterval.default
+	}
 	if ('function' !== typeof opt.fetchTilesInterval) {
 		showError('File specified by --movements-fetch-interval-fn does not export a function.')
 	}
