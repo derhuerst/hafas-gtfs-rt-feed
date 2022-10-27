@@ -39,10 +39,6 @@
 	"license": "(Apache-2.0 AND Prosperity-3.0.0)",
 	"funding": [
 		{
-			"type": "License Zero",
-			"url": "https://licensezero.com/offers/20e3ea67-5f73-4aa8-943d-079aefdc109b"
-		},
-		{
 			"type": "github",
 			"url": "https://github.com/sponsors/derhuerst"
 		},
