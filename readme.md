@@ -1,6 +1,6 @@
 # hafas-gtfs-rt-feed
 
-**Generate a [GTFS Realtime (GTFS-RT)](https://developers.google.com/transit/gtfs-realtime/) feed by polling a [HAFAS endpoint](https://github.com/public-transport/hafas-client#background).**
+**Generate a [GTFS Realtime (GTFS-RT)](https://gtfs.org/realtime/) feed by polling a [HAFAS endpoint](https://github.com/public-transport/hafas-client#background).**
 
 [![npm version](https://img.shields.io/npm/v/hafas-gtfs-rt-feed.svg)](https://www.npmjs.com/package/hafas-gtfs-rt-feed)
 [![build status](https://img.shields.io/github/workflow/status/derhuerst/hafas-gtfs-rt-feed/test/master)](https://github.com/derhuerst/hafas-gtfs-rt-feed/actions)
@@ -14,8 +14,8 @@
 `hafas-gtfs-rt-feed` consists of several components, connected to each other via [NATS Streaming](https://docs.nats.io/nats-streaming-concepts/intro) channels:
 
 1. `monitor-hafas`: Given a [`hafas-client` instance](https://github.com/public-transport/hafas-client), it uses [`hafas-monitor-trips`](https://github.com/derhuerst/hafas-monitor-trips) to poll live data about all vehicles in the configured geographic area.
-2. `match-with-gtfs`: Uses [`match-gtfs-rt-to-gtfs`](https://github.com/derhuerst/match-gtfs-rt-to-gtfs) to match this data against [static GTFS](https://developers.google.com/transit/gtfs) data imported into a database.
-3. `serve-as-gtfs-rt`: Uses [`gtfs-rt-differential-to-full-dataset`](https://github.com/derhuerst/gtfs-rt-differential-to-full-dataset) to aggregate the matched data into a single [GTFS-RT](https://developers.google.com/transit/gtfs-realtime/) feed, and serves the feed via HTTP.
+2. `match-with-gtfs`: Uses [`match-gtfs-rt-to-gtfs`](https://github.com/derhuerst/match-gtfs-rt-to-gtfs) to match this data against [static GTFS](https://gtfs.org/schedule/) data imported into a database.
+3. `serve-as-gtfs-rt`: Uses [`gtfs-rt-differential-to-full-dataset`](https://github.com/derhuerst/gtfs-rt-differential-to-full-dataset) to aggregate the matched data into a single [GTFS-RT](https://gtfs.org/realtime/) feed, and serves the feed via HTTP.
 
 `monitor-hafas` sends data to `match-with-gtfs` via two NATS Streaming channels `trips` & `movements`; `match-with-gtfs` sends data to `serve-as-gtfs-rt` via two channels `matched-trips` & `matched-movements`.
 
@@ -55,7 +55,7 @@ npm init
 
 Make sure you have **[PostgreSQL](https://www.postgresql.org) >=14** installed and running, as [`match-gtfs-rt-to-gtfs`](https://github.com/derhuerst/match-gtfs-rt-to-gtfs), a dependency of this project, needs it. There are guides for many operating systems and environments available on the internet.
 
-*Note:* If you run PostgreSQL on a different host or port, pass custom [`PG*` environment variables](https://www.postgresql.org/docs/13/libpq-envars.html) into `gtfs-to-sql`, `build-gtfs-match-index` & `match.js` (their usage is explained below).
+*Note:* If you run PostgreSQL on a different host or port, pass custom [`PG*` environment variables](https://www.postgresql.org/docs/14/libpq-envars.html) into `gtfs-to-sql`, `build-gtfs-match-index` & `match.js` (their usage is explained below).
 
 ### install `hafas-gtfs-rt-feed`
 
@@ -70,7 +70,7 @@ npm install hafas-gtfs-rt-feed
 
 `hafas-gtfs-rt-feed` is agnostic to the HAFAS API it pulls data from: To fetch data, `monitor-hafas` just uses the `hafas-client` you passed in, which you must point towards one out of many HAFAS API endpoints.
 
-Set up [`hafas-client` as documented](https://github.com/public-transport/hafas-client/blob/ba27f549520082e576560d235c34f397b0f6e06a/readme.md#usage). A very basic example using the [Deutsche Bahn (DB) endpoint](https://github.com/public-transport/hafas-client/blob/5/p/db/readme.md):
+Set up [`hafas-client` as documented](https://github.com/public-transport/hafas-client/blob/5.27.0/readme.md#usage). A very basic example using the [Deutsche Bahn (DB) endpoint](https://github.com/public-transport/hafas-client/blob/5/p/db/readme.md):
 
 ```js
 // deutsche-bahn-hafas.js
@@ -89,7 +89,7 @@ module.exports = client
 
 First, we're going to use [`gtfs-via-postgres`](https://npmjs.com/package/gtfs-via-postgres)'s `gtfs-to-sql` command-line tool to import our GTFS data into PostgreSQL.
 
-*Note:* Make sure you have an up-to-date [GTFS Static](https://developers.google.com/transit/gtfs) dataset, unzipped into individual `.txt` files.
+*Note:* Make sure you have an up-to-date [static GTFS](https://gtfs.org/schedule/) dataset, unzipped into individual `.txt` files.
 
 ```sh
 # create a PostgreSQL database `gtfs`
@@ -167,7 +167,10 @@ You can verify this using many available GTFS-RT tools; Here are two of them to 
 - [`print-gtfs-rt-cli`](https://github.com/derhuerst/print-gtfs-rt-cli) is a command-line tool, use it with `curl`: `curl 'http://localhost:3000/' -s | print-gtfs-rt`.
 - [`gtfs-rt-inspector`](https://public-transport.github.io/gtfs-rt-inspector/?feedUrl=http%3A%2F%2Flocalhost%3A3000%2F%0A) is a web app that can inspect any [CORS](https://enable-cors.org)-enabled GTFS-RT feed; Paste `http://localhost:3000/` into the url field to inspect yours.
 
-After `monitor.js` has fetched some data from HAFAS, and after `match.js` has matched it against the GTFS (or failed or timed out doing so), you should see [`TripUpdate`s](https://developers.google.com/transit/gtfs-realtime/reference/#message-tripupdate) & [`VehiclePosition`s](https://developers.google.com/transit/gtfs-realtime/reference/#message-vehicleposition).
+After `monitor.js` has fetched some data from HAFAS, and after `match.js` has matched it against the GTFS (or failed or timed out doing so), you should see [`TripUpdate`s](https://gtfs.org/realtime/reference/#message-tripupdate) & [`VehiclePosition`s](https://gtfs.org/realtime/reference/#message-vehicleposition).
+
+
+## Usage
 
 ### metrics
 
@@ -317,10 +320,10 @@ curl 'http://localhost:3000/feed_info.csv' -I
 
 ## Related
 
-- [`hafas-gtfs-rt-server-example`](https://github.com/derhuerst/hafas-gtfs-rt-server-example) – Using [`hafas-client`](https://github.com/public-transport/hafas-client), [`hafas-monitor-trips`](https://github.com/derhuerst/hafas-monitor-trips) & [`hafas-gtfs-rt-feed`](https://github.com/derhuerst/hafas-gtfs-rt-feed) as a GTFS-RT server.
-- [`match-gtfs-rt-to-gtfs`](https://github.com/derhuerst/match-gtfs-rt-to-gtfs) – Match realtime transit data (e.g. from [GTFS Realtime](https://gtfs.org/reference/realtime/v2/)) with [GTFS Static](https://gtfs.org/reference/static) data, even if they don't share an ID.
-- [`gtfs-rt-differential-to-full-dataset`](https://github.com/derhuerst/gtfs-rt-differential-to-full-dataset) – Transform a continuous [GTFS Realtime](https://developers.google.com/transit/gtfs-realtime/) stream of [`DIFFERENTIAL` incrementality](https://developers.google.com/transit/gtfs-realtime/reference/#enum-incrementality) data into a [`FULL_DATASET`](https://developers.google.com/transit/gtfs-realtime/reference/#enum-incrementality) dump.
-- [`transloc-to-gtfs-real-time`](https://github.com/jonathonwpowell/transloc-to-gtfs-real-time) – Transform Transloc Real Time API to the GTFS RealTime Format
+- [`hafas-gtfs-rt-server-example`](https://github.com/derhuerst/hafas-gtfs-rt-server-example) – Using [`hafas-client`](https://github.com/public-transport/hafas-client), [`hafas-monitor-trips`](https://github.com/derhuerst/hafas-monitor-trips) & [`hafas-gtfs-rt-feed`](https://github.com/derhuerst/hafas-gtfs-rt-feed) as a GTFS-RT server.
+- [`match-gtfs-rt-to-gtfs`](https://github.com/derhuerst/match-gtfs-rt-to-gtfs) – Match realtime transit data (e.g. from [GTFS Realtime](https://gtfs.org/reference/realtime/v2/)) with [GTFS Static](https://gtfs.org/reference/static) data, even if they don't share an ID.
+- [`gtfs-rt-differential-to-full-dataset`](https://github.com/derhuerst/gtfs-rt-differential-to-full-dataset) – Transform a continuous [GTFS Realtime](https://gtfs.org/realtime/) stream of [`DIFFERENTIAL` incrementality](https://gtfs.org/realtime/reference/#enum-incrementality) data into a [`FULL_DATASET`](https://gtfs.org/realtime/reference/#enum-incrementality) dump.
+- [`transloc-to-gtfs-real-time`](https://github.com/jonathonwpowell/transloc-to-gtfs-real-time) – Transform Transloc Real Time API to the GTFS RealTime Format
 
 There are [several projects making use of `hafas-gtfs-rt-server`](https://github.com/derhuerst/hafas-gtfs-rt-feed/network/dependents?package_id=UGFja2FnZS00MzY3NzU1NjU%3D).
 
