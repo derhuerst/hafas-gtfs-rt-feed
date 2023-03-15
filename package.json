@@ -1,7 +1,7 @@
 {
 	"name": "hafas-gtfs-rt-feed",
 	"description": "Generate a GTFS Realtime feed by monitoring a HAFAS endpoint.",
-	"version": "8.2.1",
+	"version": "8.2.2",
 	"main": "index.js",
 	"bin": {
 		"monitor-hafas": "monitor.js",
@@ -57,7 +57,7 @@
 		"etag": "^1.8.1",
 		"gtfs-rt-bindings": "^4.0.1",
 		"gtfs-rt-differential-to-full-dataset": "^2.1.0",
-		"gtfs-via-postgres": "^3.0.1",
+		"gtfs-via-postgres": "^4.5.1",
 		"hafas-monitor-trips": "^6.2.0",
 		"lodash": "^4.17.20",
 		"luxon": "^3.3.0",

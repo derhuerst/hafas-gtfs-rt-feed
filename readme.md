@@ -3,7 +3,7 @@
 **Generate a [GTFS Realtime (GTFS-RT)](https://gtfs.org/realtime/) feed by polling a [HAFAS endpoint](https://github.com/public-transport/hafas-client#background)** and matching the data against a [GTFS Static/Schedule](https://gtfs.org/schedule/) dataset.
 
 [![npm version](https://img.shields.io/npm/v/hafas-gtfs-rt-feed.svg)](https://www.npmjs.com/package/hafas-gtfs-rt-feed)
-[![build status](https://img.shields.io/github/workflow/status/derhuerst/hafas-gtfs-rt-feed/test/master)](https://github.com/derhuerst/hafas-gtfs-rt-feed/actions)
+[![build status](https://img.shields.io/github/actions/workflow/status/derhuerst/hafas-gtfs-rt-feed/test.yml?branch=master)](https://github.com/derhuerst/hafas-gtfs-rt-feed/actions)
 [![Prosperity/Apache license](https://img.shields.io/static/v1?label=license&message=Prosperity%2FApache&color=0997E8)](#license)
 [![support me via GitHub Sponsors](https://img.shields.io/badge/support%20me-donate-fa7664.svg)](https://github.com/sponsors/derhuerst)
 [![chat with me on Twitter](https://img.shields.io/badge/chat%20with%20me-on%20Twitter-1da1f2.svg)](https://twitter.com/derhuerst)
