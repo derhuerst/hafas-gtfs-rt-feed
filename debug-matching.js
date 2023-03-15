@@ -118,7 +118,8 @@ withSoftExit(closeMatching)
 	for await (const chunk of process.stdin) item += chunk
 	item = JSON.parse(item)
 
-	const res = await matchWithGtfs(item)
+	const waitTime = 0 // we didn't wait for anything, this is a debug script
+	const res = await matchWithGtfs(item, waitTime)
 	item = res.item
 	const {isMatched, matchTime} = res
 

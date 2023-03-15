@@ -97,7 +97,7 @@ let hafasClient = await import(pathResolve(process.cwd(), pathToHafasClient))
 if (isModuleNamespaceObject(hafasClient)) hafasClient = hafasClient.default
 
 const opt = {
-	bbox: args[1] || JSON.parse(process.env.BBOX || 'null'),
+	bbox: JSON.parse(args[1] || process.env.BBOX || 'null'),
 }
 
 if (flags['movements-fetch-mode']) {
