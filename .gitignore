@@ -14,3 +14,4 @@ pnpm-debug.log
 
 /test/matched.ndjson
 /test/gtfs
+/test/gtfs-match-index.sql

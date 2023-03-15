@@ -30,8 +30,8 @@ NODE_ENV=production ../gtfs-to-sql --trips-without-shape-id -d -- \
 
 NODE_ENV=production ../build-gtfs-match-index \
 	hafas-info.js gtfs-info.js \
-	>sql
-psql -b -f sql
+	>gtfs-match-index.sql
+psql -b -f gtfs-match-index.sql
 
 export MATCH_TRIP_TIMEOUT=300000 # 5m
 export MATCH_MOVEMENT_TIMEOUT=300000 # 5m
