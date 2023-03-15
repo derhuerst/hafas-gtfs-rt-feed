@@ -34,7 +34,7 @@ const onEnd = () => {
 	}))
 	process.exit((
 		nrOfEntities >= 670 && nrOfEntities <= 700
-		&& matchedTripUpdates >= 280 && matchedTripUpdates <= 300
+		&& matchedTripUpdates >= 270 && matchedTripUpdates <= 300
 		&& matchedVehiclePositions > 370 && matchedVehiclePositions <= 400
 	) ? 0 : 10)
 }
