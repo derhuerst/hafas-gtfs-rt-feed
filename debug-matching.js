@@ -1,18 +1,33 @@
 #!/usr/bin/env node
 'use strict'
 
-const mri = require('mri')
+const {parseArgs} = require('util')
 const pkg = require('./package.json')
 
-const argv = mri(process.argv.slice(2), {
-	boolean: [
-		'help', 'h',
-		'version', 'v',
-		'match-trip-shapes',
-	]
+const {
+	values: flags,
+	positionals: args,
+} = parseArgs({
+	options: {
+		'help': {
+			type: 'boolean',
+			short: 'h',
+		},
+		'version': {
+			type: 'boolean',
+			short: 'v',
+		},
+		'before-match': {
+			type: 'string',
+		},
+		'match-trip-shapes': {
+			type: 'boolean',
+		},
+	},
+	allowPositionals: true,
 })
 
-if (argv.help || argv.h) {
+if (flags.help) {
 	process.stdout.write(`
 Usage:
     debug-gtfs-matching <path-to-hafas-info> <path-to-gtfs-info> [options] <trip|movement>
@@ -27,6 +42,11 @@ Notes:
 	Run with LOG_LEVEL=debug and optionally with DEBUG='match-gtfs-rt-to-gtfs*' to
 	get more details on the matching process.
 \n`)
+	process.exit(0)
+}
+
+if (flags.version) {
+	process.stdout.write(`${pkg.name} v${pkg.version}\n`)
 	process.exit(0)
 }
 
@@ -48,24 +68,24 @@ const showError = (err) => {
 
 ;(async () => {
 
-const pathToHafasInfo = argv._[0]
+const pathToHafasInfo = args[0]
 if (!pathToHafasInfo) showError('Missing path-to-hafas-info argument.')
 let hafasInfo = await import(pathResolve(process.cwd(), pathToHafasInfo))
 // handle CommonJS modules & default exports
 if (isModuleNamespaceObject(hafasInfo)) hafasInfo = hafasInfo.default
 
-const pathToGtfsInfo = argv._[1]
+const pathToGtfsInfo = args[1]
 if (!pathToGtfsInfo) showError('Missing path-to-gtfs-info argument.')
 let gtfsInfo = await import(pathResolve(process.cwd(), pathToGtfsInfo))
 // handle CommonJS modules & default exports
 if (isModuleNamespaceObject(gtfsInfo)) gtfsInfo = gtfsInfo.default
 
-const mode = argv._[2]
+const mode = args[2]
 
 let beforeMatchTrip = trip => trip
 let beforeMatchMovement = mv => mv
-if (argv['before-match']) {
-	const p = argv['before-match']
+if (flags['before-match']) {
+	const p = flags['before-match']
 	let beforeMatch = await import(pathResolve(process.cwd(), p))
 	// handle CommonJS modules & default exports
 	if (isModuleNamespaceObject(beforeMatch)) beforeMatch = beforeMatch.default
@@ -81,7 +101,7 @@ const {
 	hafasInfo, gtfsInfo,
 	beforeMatchTrip,
 	beforeMatchMovement,
-	matchTripPolylines: !!argv['match-trip-shapes'],
+	matchTripPolylines: !!flags['match-trip-shapes'],
 	logger,
 })
 
