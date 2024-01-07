@@ -328,8 +328,8 @@ If you pass metadata about the GTFS-Static feed used, `serve-as-gtfs-rt` will ex
 
 ```shell
 serve-as-gtfs-rt \
-	--static-feed-info path/to/gtfs/files/feed_info.txt \
-	--static-feed-url https://data.ndovloket.nl/flixbus/flixbus-eu.zip
+	--feed-info path/to/gtfs/files/feed_info.txt \
+	--feed-url https://data.ndovloket.nl/flixbus/flixbus-eu.zip
 
 curl 'http://localhost:3000/feed_info.csv'
 # feed_publisher_name,feed_publisher_url,feed_lang,feed_start_date,feed_end_date,feed_version
