@@ -11,13 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ['16']
+        node-version: ['16', '18', '20']
 
     steps:
     - name: checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: setup Node v${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@4
       with:
         node-version: ${{ matrix.node-version }}
 
@@ -34,7 +34,7 @@ jobs:
         postgresql version: '14-3.2-alpine'
 
     - name: install & start Redis
-      uses: supercharge/redis-github-action@1.1.0
+      uses: supercharge/redis-github-action@1.8.0
       # with:
       #   redis-version: ${{ matrix.redis-version }}
 
