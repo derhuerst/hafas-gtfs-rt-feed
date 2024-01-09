@@ -8,6 +8,7 @@ cd "$(dirname $0)"
 set -x
 
 node truncate-at-in-seat-transfer.js
+node gtfs-rt-formatting.js
 
 wget --compression auto \
 	-r --no-parent --no-directories -R .csv.gz \
