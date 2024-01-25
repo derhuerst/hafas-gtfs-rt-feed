@@ -10,7 +10,7 @@ set -x
 node truncate-at-in-seat-transfer.js
 node gtfs-rt-formatting.js
 
-wget --compression auto \
+wget -nv --compression auto \
 	-r --no-parent --no-directories -R .csv.gz \
 	-P gtfs -N 'https://vbb-gtfs.jannisr.de/2020-12-28/'
 
