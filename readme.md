@@ -115,13 +115,17 @@ First, we're going to use [`gtfs-via-postgres`](https://npmjs.com/package/gtfs-v
 
 *Note:* Make sure you have an up-to-date [static GTFS](https://gtfs.org/schedule/) dataset, unzipped into individual `.txt` files.
 
+> ![TIP]
+> The [`sponge` command](https://linux.die.net/man/1/sponge) is from the [`moreutils` package](https://repology.org/project/moreutils/information).
+
 ```sh
 # create a PostgreSQL database `gtfs`
 psql -c 'create database gtfs'
 # configure all subsequent commands to use it
 export PGDATABASE=gtfs
 # import all .txt files
-node_modules/.bin/gtfs-to-sql -d -u path/to/gtfs/files/*.txt
+node_modules/.bin/gtfs-to-sql -d -u path/to/gtfs/files/*.txt \
+    sponge | psql -b -v 'ON_ERROR_STOP=1'
 ```
 
 You database `gtfs` should contain the static GTFS data in a basic form now.
@@ -154,7 +158,8 @@ module.exports = {
 
 ```sh
 # add matching indices to the `gtfs` database
-node_modules/.bin/build-gtfs-match-index path/to/hafas-config.js path/to/gtfs-config.js
+node_modules/.bin/build-gtfs-match-index path/to/hafas-config.js path/to/gtfs-config.js \
+    sponge | psql -b -v 'ON_ERROR_STOP=1'
 ```
 
 *Note:* `hafas-gtfs-rt-feed` is data- & region-agnostic, so it depends on your HAFAS-endpoint-specific name normalization logic to match as many HAFAS trips/vehicles as possible against the GTFS data. Ideally, the stop/line names are normalized so well that HAFAS data can *always* be matched to the (static) GTFS data. This is how GTFS-RT feeds are intended to be consumed: *along* a (static) GTFS dataset with 100% *matching IDs*. If the name normalization logic *doesn't* handle all cases, the GTFS-RT feed will contain `TripUpdate`s & `VehiclePosition`s whose `route_id` or `trip_id` doesn't occur in the GTFS dataset.
