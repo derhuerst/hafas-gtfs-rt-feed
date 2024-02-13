@@ -111,7 +111,7 @@ module.exports = hafasClient
 
 `match-with-gtfs` – `hafas-gtfs-rt-feed`'s 2nd processing step – needs a pre-populated matching database in order to match data fetched from HAFAS against the [GTFS Static/Schedule](https://gtfs.org/schedule/) data; It uses [`gtfs-via-postgres`](https://npmjs.com/package/gtfs-via-postgres) and [`match-gtfs-rt-to-gtfs`](https://npmjs.com/package/match-gtfs-rt-to-gtfs) underneath to do this matching.
 
-First, we're going to use [`gtfs-via-postgres`](https://npmjs.com/package/gtfs-via-postgres)'s `gtfs-to-sql` command-line tool to import our GTFS data into PostgreSQL.
+First, we're going to use [`gtfs-via-postgres`](https://npmjs.com/package/gtfs-via-postgres)'s `gtfs-to-sql` command-line tool to import our GTFS data into PostgreSQL. 
 
 *Note:* Make sure you have an up-to-date [static GTFS](https://gtfs.org/schedule/) dataset, unzipped into individual `.txt` files.
 
