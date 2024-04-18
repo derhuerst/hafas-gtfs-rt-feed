@@ -47,10 +47,10 @@ flowchart TB
     db-- static data -->match-with-gtfs
     serve-as-gtfs-rt-- GTFS-RT -->consumers
 
-    monitor-hafas.->trips.->match-with-gtfs
-    monitor-hafas.->movements.->match-with-gtfs
-    match-with-gtfs.->matched-trips.->serve-as-gtfs-rt
-    match-with-gtfs.->matched-movements.->serve-as-gtfs-rt
+    monitor-hafas .-> trips .-> match-with-gtfs
+    monitor-hafas .-> movements .-> match-with-gtfs
+    match-with-gtfs .-> matched-trips .-> serve-as-gtfs-rt
+    match-with-gtfs .-> matched-movements .-> serve-as-gtfs-rt
 ```
 
 
